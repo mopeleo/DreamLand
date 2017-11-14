@@ -1,5 +1,3 @@
-var scene = require('common/pubFunction');
-
 cc.Class({
     extends: cc.Component,
 
@@ -14,25 +12,36 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-
-        indexLoadingBar:{
-            default:null,
-            type:cc.ProgressBar
-        }
     },
 
     // use this for initialization
     onLoad: function () {
-        var loading = function(){
-            this.indexLoadingBar.progress += 0.1;
-            if(this.indexLoadingBar.progress > 0.9){
-                cc.director.loadScene("indexLogin");
-                // scene.goto("indexLogin");
-            }
-        }
-        this.schedule(loading, 0.8);
+
     },
 
+    login:function(){
+        cc.director.loadScene("home");
+    },
+
+    logout:function(){
+
+    },
+
+    gohome:function(){
+        cc.director.loadScene("home");
+    },
+
+    gomining:function(){
+        cc.director.loadScene("mining");
+    },
+
+    nextfloor:function(scene){
+        cc.director.loadScene(scene);
+    },
+
+    mission1:function(){
+        cc.director.loadScene("mission1");
+    },
 
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {
