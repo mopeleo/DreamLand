@@ -20,11 +20,26 @@ cc.Class({
     },
 
     login:function(){
+        var username = this.indexLogin.username.string;
+        var password = this.indexLogin.password.string;
+        var message = this.indexLogin.message;
+        if(password == '111'){
+            var socket = io.connect("http://localhost:3000");
+            socket.on("connected", function(msg){
+                console.log(msg);
+                message.string = msg;
+            });
+            return;
+        }
+        if(password != '123'){
+            message.string = "密码错误";
+            return;
+        }
         cc.director.loadScene("home");
     },
 
     logout:function(){
-
+        this.indexLogin.message.string = "您已退出";
     },
 
     gohome:function(){
