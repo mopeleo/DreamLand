@@ -1,0 +1,8 @@
+1.socket.io
+必须在assets导入socket.io.js脚本，并通过cocos creater的属性检查器把socket.io.js导入为插件。否则后台会值刷新
+2.node中的require找不到module.exports导出的对象
+修改一下包路径配置 在NODE_PATH最前面 添加.;(句号+分号) 表示可以从当前目录下找包
+
+3.nodejs的核心之一就是非阻塞的异步IO,所以mysql调用获取数据，只能是异步方式返回结果，不能同步获取结果，因此，须在回调函数中编写处理事件
+4.mysql 请一直使用pool，没有何时。
+5.mysql pool在程序初始化的时候创建，无需销毁，从中抽取实例连接就行，无需关心细节，也无需手动连接和关闭
