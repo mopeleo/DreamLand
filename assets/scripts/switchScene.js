@@ -20,18 +20,28 @@ cc.Class({
     },
 
     login:function(){
-        var username = this.indexLogin.username.string;
+        var userid = this.indexLogin.username.string;
         var password = this.indexLogin.password.string;
         var message = this.indexLogin.message;
+        var socket = io.connect("http://localhost:3000");
         if(password == '111'){
-            var socket = io.connect("http://localhost:3000");
             socket.on("connected", function(msg){
                 console.log(msg);
                 message.string = msg;
             });
             return;
         }
-        if(password != '123'){
+        if(password == '123'){
+            // var socket = io.connect("http://localhost:3000");
+            socket.on("login", function(msg){
+                console.log(msg);
+                message.string = msg;
+            });
+
+            socket.emit("login", {userid : userid, pwd: password});
+            return;
+        }
+        if(password != '333'){
             message.string = "密码错误";
             return;
         }
