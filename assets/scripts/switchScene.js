@@ -24,28 +24,14 @@ cc.Class({
         var password = this.indexLogin.password.string;
         var message = this.indexLogin.message;
         var socket = io.connect("http://localhost:3000");
-        if(password == '111'){
-            socket.on("connected", function(msg){
-                console.log(msg);
-                message.string = msg;
-            });
-            return;
-        }
-        if(password == '123'){
-            // var socket = io.connect("http://localhost:3000");
-            socket.on("login", function(msg){
-                console.log(msg);
-                message.string = msg;
-            });
-
-            socket.emit("login", {userid : userid, pwd: password});
-            return;
-        }
-        if(password != '333'){
-            message.string = "密码错误";
-            return;
-        }
-        cc.director.loadScene("home");
+        socket.emit("userservice", {action:"login", userid : userid, pwd: password});
+        socket.on("userservice", function(res){
+            console.log(res);
+            message.string = "欢迎 ： " + res.results[0].username;
+            if(res.success == true){
+                cc.director.loadScene("home");
+            }
+        });
     },
 
     logout:function(){
