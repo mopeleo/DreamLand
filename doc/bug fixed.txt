@@ -6,3 +6,8 @@
 3.nodejs的核心之一就是非阻塞的异步IO,所以mysql调用获取数据，只能是异步方式返回结果，不能同步获取结果，因此，须在回调函数中编写处理事件
 4.mysql 请一直使用pool，没有何时。
 5.mysql pool在程序初始化的时候创建，无需销毁，从中抽取实例连接就行，无需关心细节，也无需手动连接和关闭
+6.1. 在 Web 端运行的时候，是没有文件存取 API 的
+  2. 使用原生打包的话，可以使用 jsb.fileUtils:
+  if (cc.sys.isNative) {
+    jsb.fileUtils.writeStringToFile(...);
+  } 

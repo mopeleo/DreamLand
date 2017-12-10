@@ -45,7 +45,7 @@
     "_globalZOrder": 0,
     "_opacityModifyRGB": false,
     "groupIndex": 0,
-    "autoReleaseAssets": false
+    "autoReleaseAssets": null
   },
   {
     "__type__": "cc.Node",
@@ -392,7 +392,7 @@
       "__id__": 4
     },
     "component": "switchScene",
-    "handler": "mission1",
+    "handler": "chooseActor",
     "customEventData": ""
   },
   {
@@ -402,7 +402,8 @@
     "node": {
       "__id__": 4
     },
-    "_enabled": true
+    "_enabled": true,
+    "sceneName": "mission1"
   },
   {
     "__type__": "cc.Node",
@@ -644,7 +645,8 @@
     "node": {
       "__id__": 11
     },
-    "_enabled": true
+    "_enabled": true,
+    "sceneName": ""
   },
   {
     "__type__": "cc.Sprite",

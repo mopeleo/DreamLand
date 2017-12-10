@@ -1,3 +1,4 @@
+var CONSTANT = require("common/pubDefine");
 cc.Class({
     extends: cc.Component,
 
@@ -12,6 +13,7 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
+        sceneName:''
     },
 
     // use this for initialization
@@ -23,13 +25,15 @@ cc.Class({
         var userid = this.indexLogin.username.string;
         var password = this.indexLogin.password.string;
         var message = this.indexLogin.message;
-        var socket = io.connect("http://localhost:3000");
-        socket.emit("userservice", {action:"login", userid : userid, pwd: password});
+        var socket = io.connect(CONSTANT.SERVER_HOST);
+        socket.emit("userservice", {action:"login", loginid : userid, loginpwd: password});
         socket.on("userservice", function(res){
             console.log(res);
-            message.string = "欢迎 ： " + res.results[0].username;
             if(res.success == true){
+                message.string = "欢迎 ： " + res.results[0].nickname;
                 cc.director.loadScene("home");
+            }else{
+                message.string = res.retmsg;
             }
         });
     },
@@ -50,10 +54,21 @@ cc.Class({
         cc.director.loadScene(scene);
     },
 
-    mission1:function(){
-        cc.director.loadScene("mission1");
+    chooseActor:function(){
+        CONSTANT.DATA_EXCHANGE.goscene = this.sceneName;
+        CONSTANT.DATA_EXCHANGE.floor = 1;
+        CONSTANT.DATA_EXCHANGE.battleNumber = 0;
+        CONSTANT.DATA_EXCHANGE.battleActors = ["","","","","",""];
+        cc.director.loadScene("actorChoose");
     },
 
+    goScene:function(){
+        if(CONSTANT.DATA_EXCHANGE.battleNumber == 0){
+            Alert.show("请先选择上场角色");
+            return;
+        }
+        cc.director.loadScene(CONSTANT.DATA_EXCHANGE.goscene);
+    },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {
 
