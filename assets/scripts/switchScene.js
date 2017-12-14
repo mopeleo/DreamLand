@@ -26,7 +26,6 @@ cc.Class({
         var password = this.indexLogin.password.string;
         var message = this.indexLogin.message;
         var socket = io.connect(CONSTANT.SERVER_HOST);
-        socket.emit("userservice", {action:"login", loginid : userid, loginpwd: password});
         socket.on("userservice", function(res){
             console.log(res);
             if(res.success == true){
@@ -36,6 +35,7 @@ cc.Class({
                 message.string = res.retmsg;
             }
         });
+        socket.emit("userservice", {action:"login", loginid : userid, loginpwd: password});
     },
 
     logout:function(){

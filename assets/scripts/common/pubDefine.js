@@ -1,5 +1,5 @@
 module.exports = {
-    SERVER_HOST           : "http://localhost:3000",
+    SERVER_HOST           : "127.0.0.1:3000",
     BATTLE_FLOOR          : 1,
     BATTLE_CELL_X         : 6,
     BATTLE_CELL_Y         : 6,

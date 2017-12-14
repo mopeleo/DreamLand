@@ -1,4 +1,5 @@
 var CONSTANT = require("CONSTANT/pubDefine");
+var ACTORS = require("CONSTANT/pubActors");
 
 cc.Class({
     extends: cc.Component,
@@ -89,12 +90,17 @@ cc.Class({
             // this.actorList[5][i].getComponent(cc.Sprite).spriteFrame = this.aSpriteFrame;
             if(CONSTANT.DATA_EXCHANGE.battleActors[i] && CONSTANT.DATA_EXCHANGE.battleActors[i] != ''){
                 var actor = this.getCell(5, i);
-                actor.id = "self00" + (i+1);
+                actor.id = CONSTANT.DATA_EXCHANGE.battleActors[i];
                 var spriteFrame = new cc.SpriteFrame();
                 var urlPath = "resources/player/"+ CONSTANT.DATA_EXCHANGE.battleActors[i] +".jpg"
                 var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
                 spriteFrame.setTexture(texture);
                 actor.getComponent(cc.Sprite).spriteFrame = spriteFrame;
+
+                var actorData = ACTORS[CONSTANT.DATA_EXCHANGE.battleActors[i]];
+                actor.getChildByName("spd").getComponent(cc.Label).string = actorData.spd;
+                actor.getChildByName("hp").getComponent(cc.Label).string = actorData.hp;
+                actor.getChildByName("atk").getComponent(cc.Label).string = actorData.atk;
             }
         }
 
@@ -113,18 +119,6 @@ cc.Class({
                 count++;
             }
         }
-
-        // for(var i = 0; i < CONSTANT.BATTLE_CELL_Y ; i++){
-        //     if(CONSTANT.DATA_EXCHANGE.battleActors[i] && CONSTANT.DATA_EXCHANGE.battleActors[i] != ''){
-        //         var actor = this.getCell(6, i+1);
-        //         actor.id = "self00" + (i+1);
-        //         var spriteFrame = new cc.SpriteFrame();
-        //         var urlPath = "resources/player/"+ CONSTANT.DATA_EXCHANGE.battleActors[i] +".jpg"
-        //         var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
-        //         spriteFrame.setTexture(texture);
-        //         actor.getComponent(cc.Sprite).spriteFrame = spriteFrame;
-        //     }
-        // }
 
     },
 

@@ -25,32 +25,6 @@ cc.Class({
 
     // use this for initialization
     onLoad: function () {
-        /*
-        for (var i = 1; i < (CONSTANT.ACTOR_NUM + 1); i++) {
-            var actor = cc.instantiate(this.prefabActor);
-            this.node.addChild(actor);
-            var actorX = -280+(80*i);
-            actor.setPosition(actorX, -40);
-            actor.id = "actor000"+i;
-            var spriteFrame = new cc.SpriteFrame();
-            var sno = i;
-            if(sno > 4){
-                sno = sno%4;
-                if(sno == 0){
-                    sno = 4;
-                }
-            }
-            var urlPath = "textures/player/000"+ sno +".jpg"
-            var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
-            spriteFrame.setTexture(texture);
-            actor.getComponent(cc.Sprite).spriteFrame = spriteFrame;
-            cc.log("content width = " + this.node.width + ", actor width = " +  (actorX+40));
-            if((actorX+40) >= this.node.width){
-                this.node.width += 80;
-            }
-        }
-        */
-
         if(this.containType == 1){
             this.initAllActorScroll();
         }else if(this.containType == 2){
