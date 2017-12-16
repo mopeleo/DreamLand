@@ -26,16 +26,16 @@ cc.Class({
         var password = this.indexLogin.password.string;
         var message = this.indexLogin.message;
         var socket = io.connect(CONSTANT.SERVER_HOST);
-        socket.on("userservice", function(res){
+        socket.on(CONSTANT.SERVICES.userservice, function(res){
             console.log(res);
             if(res.success == true){
                 message.string = "欢迎 ： " + res.results[0].nickname;
-                cc.director.loadScene("home");
+                cc.director.loadScene(CONSTANT.SCENES.home);
             }else{
                 message.string = res.retmsg;
             }
         });
-        socket.emit("userservice", {action:"login", loginid : userid, loginpwd: password});
+        socket.emit(CONSTANT.SERVICES.userservice, {action:"login", loginid : userid, loginpwd: password});
     },
 
     logout:function(){
@@ -43,31 +43,29 @@ cc.Class({
     },
 
     gohome:function(){
-        cc.director.loadScene("home");
+        cc.director.loadScene(CONSTANT.SCENES.home);
     },
 
     gomining:function(){
-        cc.director.loadScene("mining");
-    },
-
-    nextfloor:function(scene){
-        cc.director.loadScene(scene);
+        cc.director.loadScene(CONSTANT.SCENES.mining);
     },
 
     chooseActor:function(){
-        CONSTANT.DATA_EXCHANGE.goscene = this.sceneName;
-        CONSTANT.DATA_EXCHANGE.floor = 1;
-        CONSTANT.DATA_EXCHANGE.battleNumber = 0;
-        CONSTANT.DATA_EXCHANGE.battleActors = ["","","","","",""];
-        cc.director.loadScene("actorChoose");
+        CONSTANT.BATTLE_SCENE_PARAM.init(this.sceneName);
+        cc.director.loadScene(CONSTANT.SCENES.actorchoose);
     },
 
-    goScene:function(){
-        if(CONSTANT.DATA_EXCHANGE.battleNumber == 0){
+    goBattle:function(){
+        if(CONSTANT.BATTLE_SCENE_PARAM.playerActorNum == 0){
             Alert.show("请先选择上场角色");
             return;
         }
-        cc.director.loadScene(CONSTANT.DATA_EXCHANGE.goscene);
+        var nextscene = CONSTANT.SCENES[CONSTANT.BATTLE_SCENE_PARAM.sceneName];
+        if(nextscene.playerMinNum && CONSTANT.BATTLE_SCENE_PARAM.playerActorNum < nextscene.playerMinNum){
+            Alert.show("上场角色不能少于" + nextscene.playerMinNum);
+            return;
+        }
+        cc.director.loadScene(CONSTANT.BATTLE_SCENE_PARAM.sceneName);
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

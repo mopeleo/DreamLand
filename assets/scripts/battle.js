@@ -40,7 +40,10 @@ cc.Class({
             type:cc.Button
         },
 
-        actorList:[]
+        attacking:0,
+        actorList:[],
+        playerList:[],
+        enemyList:[]
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -48,91 +51,126 @@ cc.Class({
     // onLoad () {},
 
     start () {
-        this.floorLabel.string = "floor : " + CONSTANT.DATA_EXCHANGE.floor;
-        this.nextButton.node.on("touchend", function(){
-                CONSTANT.DATA_EXCHANGE.floor++;
-                cc.director.loadScene(CONSTANT.DATA_EXCHANGE.goscene);
-            }, this);
-//        Alert.show(this.battleSprite.node);
-                // var obj =  this.battleSprite.node;
-                // for(var p in obj){
-                //     cc.log("p == " + p + ", value == " + obj[p]);
-                // }
-
+        this.floorLabel.string = "floor : " + CONSTANT.BATTLE_SCENE_PARAM.floor;
+        this.nextButton.node.on(
+            cc.Node.EventType.TOUCH_END,
+            function(){
+                CONSTANT.BATTLE_SCENE_PARAM.floor++;
+                cc.director.loadScene(CONSTANT.BATTLE_SCENE_PARAM.sceneName);
+            },
+            this
+        );
 
 
         //初始化战斗场景
-        this.actorList = new Array(CONSTANT.BATTLE_CELL_X);
-        for(var i=0; i<CONSTANT.BATTLE_CELL_X; i++){
-            this.actorList[i] = new Array(CONSTANT.BATTLE_CELL_Y);
+        var cell_x = CONSTANT.BATTLE_SCENE_PARAM.getBattleCols();
+        var cell_y = CONSTANT.BATTLE_SCENE_PARAM.getBattleRows();
+        this.actorList = new Array(cell_x);
+        for(var i = 0; i < cell_x; i++){
+            this.actorList[i] = new Array(cell_y);
         }
 
         // 初始化单元格
-        for(var i = 0; i < CONSTANT.BATTLE_CELL_X; i++){
-            for(var j = 0;j < CONSTANT.BATTLE_CELL_Y; j++){
+        for(var i = 0; i < cell_x; i++){
+            for(var j = 0;j < cell_y; j++){
                 var actor = cc.instantiate(this.prefabActor);
                 this.battleSprite.node.addChild(actor);
-                actor.setPosition(cc.p((j-CONSTANT.BATTLE_CELL_X/2)*80+40, (CONSTANT.BATTLE_CELL_Y/2-i)*80-40));
+                var px = (j - cell_x/2)*CONSTANT.BATTLE_SCENE_PARAM.cellWidth + CONSTANT.BATTLE_SCENE_PARAM.cellWidth/2;
+                var py = (cell_y/2-i)*CONSTANT.BATTLE_SCENE_PARAM.cellHeight - CONSTANT.BATTLE_SCENE_PARAM.cellHeight/2;
+                actor.setPosition(cc.p(px, py));
                 var spriteFrame = new cc.SpriteFrame();
-                var urlPath = CONSTANT.INIT_ACTOR_SPRITEFRAME.rawurl;
-                var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
+                var texture = cc.textureCache.addImage(cc.url.raw(CONSTANT.INIT_ACTOR_SPRITEFRAME.rawurl));
                 spriteFrame.setTexture(texture);
                 actor.getComponent(cc.Sprite).spriteFrame = spriteFrame;
                 actor.getComponent(cc.Sprite).spriteFrame.frameid = CONSTANT.INIT_ACTOR_SPRITEFRAME.frameid;
 
                 this.actorList[i][j]=actor;
-                // cc.log(this.actorList);
             }
         }
 
-        //初始化我方,row=6
-        for(var i = 0; i < CONSTANT.DATA_EXCHANGE.battleActors.length ; i++){
-            // this.actorList[5][i].getComponent(cc.Sprite).spriteFrame = this.aSpriteFrame;
-            if(CONSTANT.DATA_EXCHANGE.battleActors[i] && CONSTANT.DATA_EXCHANGE.battleActors[i] != ''){
-                var actor = this.getCell(5, i);
-                actor.id = CONSTANT.DATA_EXCHANGE.battleActors[i];
+        //初始化我方,row=5
+        for(var i = 0; i < CONSTANT.BATTLE_SCENE_PARAM.playerActors.length ; i++){
+            var playerActorId = CONSTANT.BATTLE_SCENE_PARAM.playerActors[i];
+            if(playerActorId && playerActorId != ''){
+                var actor = this.getCell(cell_y - 1, i);
+                actor.id = playerActorId;
                 var spriteFrame = new cc.SpriteFrame();
-                var urlPath = "resources/player/"+ CONSTANT.DATA_EXCHANGE.battleActors[i] +".jpg"
+                var urlPath = CONSTANT.PIC_URL.playerdir + playerActorId + ".jpg";
                 var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
                 spriteFrame.setTexture(texture);
                 actor.getComponent(cc.Sprite).spriteFrame = spriteFrame;
 
-                var actorData = ACTORS[CONSTANT.DATA_EXCHANGE.battleActors[i]];
+                var actorData = ACTORS[playerActorId];
                 actor.getChildByName("spd").getComponent(cc.Label).string = actorData.spd;
                 actor.getChildByName("hp").getComponent(cc.Label).string = actorData.hp;
                 actor.getChildByName("atk").getComponent(cc.Label).string = actorData.atk;
+
+                this.playerList.push(actor);
             }
         }
 
         //初始化敌方位置
         var count = 0;
-        while(count < CONSTANT.DATA_EXCHANGE.battleEnemyNum){
-            var randomRow = Math.floor((Math.random() * (CONSTANT.BATTLE_CELL_Y-2)));
-            var randomCol = Math.floor((Math.random() * CONSTANT.BATTLE_CELL_X));
+        var enemyNum = CONSTANT.BATTLE_SCENE_PARAM.getEnemyNum();
+        while(count < enemyNum){
+            var randomRow = Math.floor((Math.random() * (cell_y - 2)));  //最下方两行为分隔行与玩家行
+            var randomCol = Math.floor((Math.random() * cell_x));
             var cell = this.getCell(randomRow, randomCol);
             if(cell.getComponent(cc.Sprite).spriteFrame.frameid == CONSTANT.INIT_ACTOR_SPRITEFRAME.frameid){
                 var spriteFrame = new cc.SpriteFrame();
-                var urlPath = CONSTANT.PIC_URL.enemydir +"0001.jpg";
+                var urlPath = CONSTANT.PIC_URL.enemydir + "0001" + ".jpg";
                 var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
                 spriteFrame.setTexture(texture);
                 cell.getComponent(cc.Sprite).spriteFrame = spriteFrame;
+                cell.on(cc.Node.EventType.TOUCH_END, this.attack, this);
+                this.enemyList.push(cell);
                 count++;
             }
         }
 
     },
 
+    attack: function(event){
+        if(this.attacking > 0){
+            return;
+        }
+        if(this.playerList.length == 0){
+            return;
+        }
+        var ex = event.target.x;
+        var ey = event.target.y;
+        this.playerList.sort(this.speedCompare);
+        for(var i=0; i < this.playerList.length; i++){
+            this.attacking++;
+            var player = this.playerList[i];
+            var ox = player.x;
+            var oy = player.y;
+            var self = this;
+            var finished = cc.callFunc(function(){self.attacking--;}, self);
+            var seq = cc.sequence(cc.moveTo(0.5, ex, ey), cc.moveTo(0.5, ox, oy), finished);
+            player.runAction(seq);
+        }
+    },
 
+    speedCompare: function(a, b){
+        if( a.spd > b.spd) {
+            return -1;
+        }else if(a.spd < b.spd) {
+            return 1;
+        }else {
+            return 0;
+        }
+    },
     // update (dt) {},
 
     //col从左往右，row从上往下，从1开始，比如最左上角的格子坐标为row=0，col=0，最右下角的格子坐标为row=5，col=5
     //example : getCell(2,1)
     getCell: function(row,col){
-        if(row >= CONSTANT.BATTLE_CELL_X){
-            row = CONSTANT.BATTLE_CELL_X -1;
+        if(row >= CONSTANT.BATTLE_SCENE_PARAM.getBattleCols()){
+            row = CONSTANT.BATTLE_SCENE_PARAM.getBattleCols() -1;
         }
-        if(col >= CONSTANT.BATTLE_CELL_Y){
-            col = CONSTANT.BATTLE_CELL_Y -1;
+        if(col >= CONSTANT.BATTLE_SCENE_PARAM.getBattleRows()){
+            col = CONSTANT.BATTLE_SCENE_PARAM.getBattleRows() -1;
         }
         if(row < 0){
             row = 0;

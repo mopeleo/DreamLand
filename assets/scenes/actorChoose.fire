@@ -1135,7 +1135,7 @@
       "__id__": 25
     },
     "component": "switchScene",
-    "handler": "goScene",
+    "handler": "goBattle",
     "customEventData": ""
   },
   {
