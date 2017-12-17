@@ -1,5 +1,5 @@
 module.exports = {
-    SERVER_HOST: "127.0.0.1:3000",
+    SERVER_HOST: "http://192.168.200.118:3000",
     SERVICES:{
         userservice: "userservice",    //用户服务名
         data:1

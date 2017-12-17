@@ -1,5 +1,5 @@
-var CONSTANT = require("CONSTANT/pubDefine");
-var ACTORS = require("CONSTANT/pubActors");
+var CONSTANT = require("pubDefine");
+var ACTORS = require("pubActors");
 
 cc.Class({
     extends: cc.Component,

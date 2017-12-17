@@ -1,4 +1,4 @@
-var CONSTANT = require("common/pubDefine");
+var CONSTANT = require("pubDefine");
 cc.Class({
     extends: cc.Component,
 
@@ -26,8 +26,9 @@ cc.Class({
         var password = this.indexLogin.password.string;
         var message = this.indexLogin.message;
         var socket = io.connect(CONSTANT.SERVER_HOST);
+        var param = {action:"login", loginid : userid, loginpwd: password};
+        socket.emit(CONSTANT.SERVICES.userservice, param);
         socket.on(CONSTANT.SERVICES.userservice, function(res){
-            console.log(res);
             if(res.success == true){
                 message.string = "欢迎 ： " + res.results[0].nickname;
                 cc.director.loadScene(CONSTANT.SCENES.home);
@@ -35,7 +36,6 @@ cc.Class({
                 message.string = res.retmsg;
             }
         });
-        socket.emit(CONSTANT.SERVICES.userservice, {action:"login", loginid : userid, loginpwd: password});
     },
 
     logout:function(){
@@ -66,6 +66,10 @@ cc.Class({
             return;
         }
         cc.director.loadScene(CONSTANT.BATTLE_SCENE_PARAM.sceneName);
+    },
+
+    exitApp:function(){
+        cc.director.end();
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {
