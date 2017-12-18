@@ -147,12 +147,15 @@ cc.Class({
             var oy = player.y;
             var self = this;
             var finished = cc.callFunc(function(){self.attacking--;}, self);
-            var seq = cc.sequence(cc.moveTo(0.5, ex, ey), cc.moveTo(0.5, ox, oy), finished);
+            var seq = cc.sequence(cc.delayTime(0.3*i), cc.moveTo(0.3, ex, ey), cc.moveTo(0.3, ox, oy), finished);
             player.runAction(seq);
         }
     },
 
-    speedCompare: function(a, b){
+    //按速度排序
+    speedCompare: function(objA, objB){
+        var a = ACTORS[objA.id];
+        var b = ACTORS[objB.id];
         if( a.spd > b.spd) {
             return -1;
         }else if(a.spd < b.spd) {

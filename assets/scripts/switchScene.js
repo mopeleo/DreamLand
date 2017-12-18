@@ -25,8 +25,9 @@ cc.Class({
         var userid = this.indexLogin.username.string;
         var password = this.indexLogin.password.string;
         var message = this.indexLogin.message;
-        var socket = io.connect(CONSTANT.SERVER_HOST);
         var param = {action:"login", loginid : userid, loginpwd: password};
+        var socket = io.connect(CONSTANT.SERVER_HOST);
+        // socket.emit(CONSTANT.SERVICES.userservice, JSON.stringify(param));
         socket.emit(CONSTANT.SERVICES.userservice, param);
         socket.on(CONSTANT.SERVICES.userservice, function(res){
             if(res.success == true){
