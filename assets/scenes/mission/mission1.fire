@@ -829,7 +829,10 @@
     "nextButton": {
       "__id__": 10
     },
-    "actorList": []
+    "attacking": 0,
+    "actorList": [],
+    "playerList": [],
+    "enemyList": []
   },
   {
     "__type__": "cc.Canvas",
