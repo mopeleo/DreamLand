@@ -1,5 +1,5 @@
 module.exports = {
-    SERVER_HOST: "http://127.0.0.1:3000",
+    SERVER_HOST: "ws://127.0.0.1:8080/dlserver/websocket",
     SERVICES:{
         userservice: "userservice",    //用户服务名
         data:1

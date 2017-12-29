@@ -1,4 +1,5 @@
 var CONSTANT = require("pubDefine");
+var websocket = require("netEngine");
 cc.Class({
     extends: cc.Component,
 
@@ -21,23 +22,69 @@ cc.Class({
 
     },
 
+    // login:function(){
+    //     var userid = this.indexLogin.username.string;
+    //     var password = this.indexLogin.password.string;
+    //     var message = this.indexLogin.message;
+    //     var param = {action:"login", loginid : userid, loginpwd: password};
+
+    //     var ws = new WebSocket(CONSTANT.SERVER_HOST);
+    //     var identifier = "id";
+    //     ws.onopen = function (msg) {
+    //         var sendData = {
+    //             "identifier": identifier,
+    //             'type': 'send',
+    //             "data": param,
+    //         };
+    //         var sendString = JSON.stringify(sendData);
+    //         ws.send(sendString);
+    //     };
+    //     ws.onmessage = function(msg) {
+    //         cc.log('net:receive:before: ' + msg.data);
+    //         var data = JSON.parse(msg.data);
+    //         if (data.identifier == identifier) {
+    //             message.string = "欢迎 ： " + data.results[0].nickname;
+    //             cc.director.loadScene(CONSTANT.SCENES.home);
+    //             ws.close();
+    //         }
+    //         else {
+    //             cc.log('net:receive: ' + msg);
+    //         }
+    //     };
+    // },
+
     login:function(){
         var userid = this.indexLogin.username.string;
         var password = this.indexLogin.password.string;
         var message = this.indexLogin.message;
         var param = {action:"login", loginid : userid, loginpwd: password};
-        var socket = io.connect(CONSTANT.SERVER_HOST);
-        // socket.emit(CONSTANT.SERVICES.userservice, JSON.stringify(param));
-        socket.emit(CONSTANT.SERVICES.userservice, param);
-        socket.on(CONSTANT.SERVICES.userservice, function(res){
+        websocket.send("userservice", param, function(res){
             if(res.success == true){
                 message.string = "欢迎 ： " + res.results[0].nickname;
                 cc.director.loadScene(CONSTANT.SCENES.home);
             }else{
                 message.string = res.retmsg;
             }
+
         });
     },
+
+    // login:function(){
+    //     var userid = this.indexLogin.username.string;
+    //     var password = this.indexLogin.password.string;
+    //     var message = this.indexLogin.message;
+    //     var param = {action:"login", loginid : userid, loginpwd: password};
+    //     var socket = io.connect(CONSTANT.SERVER_HOST);
+    //     socket.emit(CONSTANT.SERVICES.userservice, param);
+    //     socket.on(CONSTANT.SERVICES.userservice, function(res){
+    //         if(res.success == true){
+    //             message.string = "欢迎 ： " + res.results[0].nickname;
+    //             cc.director.loadScene(CONSTANT.SCENES.home);
+    //         }else{
+    //             message.string = res.retmsg;
+    //         }
+    //     });
+    // },
 
     logout:function(){
         this.indexLogin.message.string = "您已退出";

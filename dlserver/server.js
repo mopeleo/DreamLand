@@ -1,29 +1,33 @@
-var express = require("express");
-var app = express();
-var server = require("http").Server(app);
-var io = require("socket.io")(server);
-//app.use(express.static(__dirname + "/public"));
+const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
 
-//service
-var UserService = require("services/userService");
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({server});
 
-server.listen(3000, function(){
-	console.log("listening on : 3000");
+server.listen(3000, function() {
+    console.log('Listening on %d', server.address().port);
 });
 
-io.on("connection", function(socket){
-	console.log("connection event");
-	socket.emit("connected", "already connect");
+wss.on('connection', function(ws) {
+    console.log("ws connected");
 
-	socket.on("login", function(req){
-		console.log("login event : ");
-		console.log(req);
-		var self = this;
-		UserService.login(req, function(user){
-			console.log("result : ");
-			console.log(user);
-			self.emit("login", user.username);
-		});
-		// this.emit("login", "already login");
-	});
+    ws.on('message', function(msg) {
+        console.log('received: %s', msg);
+        var receivedData = JSON.parse(msg);
+        var identifier = receivedData.identifier;
+        var type = receivedData.type;
+        if (type == 'send') {
+            var sendData = {identifier: "id", retmsg:"success",results:[{nickname:"leo", age:30}]};
+            var sendString = JSON.stringify(sendData);
+            if (ws.readyState == WebSocket.OPEN) {
+                ws.send(sendString);
+            }
+        }
+    });
+
+    ws.on('close', (msg)=>{
+        console.log('ws closed');
+    });
 });
