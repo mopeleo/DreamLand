@@ -1,25 +1,11 @@
 var CONSTANT = require("pubDefine");
 var ACTORS = require("pubActors");
+var ENEMY = require("pubEnemy");
 
 cc.Class({
     extends: cc.Component,
 
     properties: {
-        // foo: {
-        //     // ATTRIBUTES:
-        //     default: null,        // The default value will be used only when the component attaching
-        //                           // to a node for the first time
-        //     type: cc.SpriteFrame, // optional, default is typeof default
-        //     serializable: true,   // optional, default is true
-        // },
-        // bar: {
-        //     get () {
-        //         return this._bar;
-        //     },
-        //     set (value) {
-        //         this._bar = value;
-        //     }
-        // },
         prefabActor:{
             default:null,
             type:cc.Prefab
@@ -43,7 +29,8 @@ cc.Class({
         attacking:0,
         actorList:[],
         playerList:[],
-        enemyList:[]
+        enemyList:[],
+        sceneParam:null
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -62,7 +49,7 @@ cc.Class({
             },
             this
         );
-
+        this.sceneParam = CONSTANT.SCENES[CONSTANT.BATTLE_SCENE_PARAM.sceneName];
 
         //初始化战斗场景
         var cell_x = CONSTANT.BATTLE_SCENE_PARAM.getBattleCols();
@@ -77,7 +64,7 @@ cc.Class({
 
         //初始化敌方位置
         var count = 0;
-        var enemyNum = CONSTANT.BATTLE_SCENE_PARAM.getEnemyNum();
+        var enemyNum = this.sceneParam.getEnemyNum();
         while(count < enemyNum){
             var randomRow = Math.floor((Math.random() * (cell_y - 2)));  //最下方两行为分隔行与玩家行
             var randomCol = Math.floor((Math.random() * cell_x));
@@ -89,11 +76,18 @@ cc.Class({
                 cell.setPosition(cc.p(px, py));
 
                 var spriteFrame = new cc.SpriteFrame();
-                var urlPath = CONSTANT.PIC_URL.enemydir + "0001" + ".jpg";
+                var randomEnemyIndex = Math.floor((Math.random() * this.sceneParam.allowEnemy.length));
+                var enemyId = this.sceneParam.allowEnemy[randomEnemyIndex];
+                var urlPath = CONSTANT.PIC_URL.enemydir + enemyId + ".jpg";
                 var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
                 spriteFrame.setTexture(texture);
                 cell.getComponent(cc.Sprite).spriteFrame = spriteFrame;
                 cell.on(cc.Node.EventType.TOUCH_END, this.attack, this);
+
+                var enemyData = ENEMY[enemyId];
+                cell.getChildByName("spd").getComponent(cc.Label).string = enemyData.spd;
+                cell.getChildByName("hp").getComponent(cc.Label).string = enemyData.hp;
+                cell.getChildByName("atk").getComponent(cc.Label).string = enemyData.atk;
 
                 this.battleSprite.node.addChild(cell);          //添加到场景
                 this.enemyList.push(cell);
@@ -103,7 +97,7 @@ cc.Class({
         }
 
         //初始化我方,row=5
-        for(var i = 0; i < CONSTANT.BATTLE_SCENE_PARAM.playerActors.length ; i++){
+        for(var i = 0; i < CONSTANT.BATTLE_SCENE_PARAM.playerActors.length; i++){
             var playerActorId = CONSTANT.BATTLE_SCENE_PARAM.playerActors[i];
             if(playerActorId && playerActorId != ''){
                 // var actor = this.getCell(cell_y - 1, i);
@@ -129,6 +123,12 @@ cc.Class({
                 this.actorList[cell_y - 1][i] = actor;
             }
         }
+
+        //找出比我方先行动的地方，先攻击
+        // this.playerList.sort(this.speedCompare);
+        // var playFirst = this.playerList[0];     //  我方最先出手的角色
+        // this.enemyList.sort(this.speedCompare);
+
     },
 
     attack: function(event){

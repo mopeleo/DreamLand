@@ -13,10 +13,10 @@
   "oauthLoginServer": "",
   "optimizeHotUpdate": false,
   "orientation": {
-    "landscapeLeft": true,
-    "landscapeRight": true,
+    "landscapeLeft": false,
+    "landscapeRight": false,
     "portrait": false,
-    "upsideDown": false
+    "upsideDown": true
   },
   "packageName": "org.cocos2d.DreamLand",
   "privateKey": "",
@@ -24,5 +24,9 @@
   "startScene": "44344abe-5cd5-4ead-adbd-27c36fa7a55a",
   "title": "DreamLand",
   "webOrientation": "auto",
+  "wechatgame": {
+    "appid": "",
+    "orientation": "portrait"
+  },
   "xxteaKey": "5ba12e26-21f8-45"
 }
