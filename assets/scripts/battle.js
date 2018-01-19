@@ -27,6 +27,8 @@ cc.Class({
         },
 
         attacking:0,
+        playerOpt:false,        //玩家操作结束
+        playerSelectEnemy:null, //玩家选中的敌方
         cellList:[],
         playerList:[],
         enemyList:[],
@@ -138,15 +140,31 @@ cc.Class({
     actionChain:function(){
         //按速度排序所有的角色
         this.actorList.sort(this.speedCompare);
+        var skipCnt = 0;
         for(var i = 0; i < this.actorList.length; i++){
             var actor = this.actorList[i];
             if(actor._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
                 if(actor._act == true){
+                    skipCnt++;
                     continue;
+                }else{
+                    //玩家已经操作过，自动战斗，若没有操作过，跳出自动战斗
+                    if(this.playerOpt == true){
+                        var leastHp = this.playerSelectEnemy;
+                        if(leastHp == null){
+                            leastHp = this.getLeastHpActor(this.enemyList);
+                        }
+                        if(leastHp == null){
+                            break;
+                        }
+                        this.fight(actor, leastHp, (i-skipCnt));
+                    }else{
+                        break;
+                    }
                 }
-                break;
             }else if(actor._type == CONSTANT.BATTLE_SCENE_PARAM.enemyType){
                 if(actor._act == true){
+                    skipCnt++;
                     continue;
                 }
 
@@ -154,8 +172,7 @@ cc.Class({
                 if(leastHp == null){
                     break;
                 }
-                this.fight(actor, leastHp, i);
-                actor._act = true;
+                this.fight(actor, leastHp, (i-skipCnt));
             }
         }
     },
@@ -179,7 +196,23 @@ cc.Class({
             hpNode.getComponent(cc.Label).string = bld;
         }, self, blood);
         var finished = cc.callFunc(function(){
+            atk._act = true;
             hpNode.getComponent(cc.Label).string = "";
+            //判断最后一个行动完毕后开始循环
+            var existNotAct = false;
+            for(var j = 0; j < this.actorList.length; j++){
+                if(this.actorList[j]._act == false){
+                    existNotAct = true;
+                    break;
+                }
+            }
+            if(!existNotAct){
+                this.playerOpt = false;
+                for(var j = 0; j < this.actorList.length; j++){
+                    this.actorList[j]._act = false;
+                }
+                this.actionChain(); //开始下一轮
+            }
         }, self);
         var seq = cc.sequence(
             cc.delayTime(0.3*seq),
@@ -190,51 +223,60 @@ cc.Class({
         atk.runAction(seq);
     },
 
-    attack: function(event){
-        if(this.attacking > 0){
-            return;
-        }
-        if(this.playerList.length == 0){
-            return;
-        }
-        var ex = event.target.x;
-        var ey = event.target.y;
-        /* 动态新增LABEL */
-        var hpNode = new cc.Node("hpText");
-        hpNode.x = ex;
-        hpNode.y = ey + 30;
-        hpNode.color = cc.Color.RED;
-        var label = hpNode.addComponent(cc.Label);
-        label.fontSize = 20;
-        label.string="";
-        this.node.addChild(hpNode);
-        /* 动态新增LABEL END*/
-
-        this.playerList.sort(this.speedCompare);
-        for(var i=0; i < this.playerList.length; i++){
-            this.attacking++;
-            var player = this.playerList[i];
-            var self = this;
-            var actorData = ACTORS[player.id];
-            var blood = actorData.atk;
-            var fight = cc.callFunc(function(obj, bld){
-                hpNode.getComponent(cc.Label).string = bld;
-            }, self, blood);
-            var finished = cc.callFunc(function(){
-                self.attacking--;
-                if(self.attacking == 0){
-                    hpNode.getComponent(cc.Label).string = "";
-                }
-            }, self);
-            var seq = cc.sequence(
-                cc.delayTime(0.3*i),
-                cc.moveTo(0.3, ex, ey),
-                fight,
-                cc.moveTo(0.3, player.x, player.y),
-                finished);
-            player.runAction(seq);
+    attack:function(event){
+        if(!this.playerOpt){
+            this.playerSelectEnemy = event.target;
+            this.playerOpt = true;
+            this.actionChain();
         }
     },
+
+    // attack: function(event){
+    //     if(this.attacking > 0){
+    //         return;
+    //     }
+    //     if(this.playerList.length == 0){
+    //         return;
+    //     }
+    //     this.playerSelectEnemy = event.target;
+    //     var ex = event.target.x;
+    //     var ey = event.target.y;
+    //     /* 动态新增LABEL */
+    //     var hpNode = new cc.Node("hpText");
+    //     hpNode.x = ex;
+    //     hpNode.y = ey + 30;
+    //     hpNode.color = cc.Color.RED;
+    //     var label = hpNode.addComponent(cc.Label);
+    //     label.fontSize = 20;
+    //     label.string="";
+    //     this.node.addChild(hpNode);
+    //     /* 动态新增LABEL END*/
+
+    //     this.playerList.sort(this.speedCompare);
+    //     for(var i=0; i < this.playerList.length; i++){
+    //         this.attacking++;
+    //         var player = this.playerList[i];
+    //         var self = this;
+    //         var actorData = ACTORS[player.id];
+    //         var blood = actorData.atk;
+    //         var fight = cc.callFunc(function(obj, bld){
+    //             hpNode.getComponent(cc.Label).string = bld;
+    //         }, self, blood);
+    //         var finished = cc.callFunc(function(){
+    //             self.attacking--;
+    //             if(self.attacking == 0){
+    //                 hpNode.getComponent(cc.Label).string = "";
+    //             }
+    //         }, self);
+    //         var seq = cc.sequence(
+    //             cc.delayTime(0.3*i),
+    //             cc.moveTo(0.3, ex, ey),
+    //             fight,
+    //             cc.moveTo(0.3, player.x, player.y),
+    //             finished);
+    //         player.runAction(seq);
+    //     }
+    // },
 
     //按速度排序,spd大的排在前面
     speedCompare: function(objA, objB){
