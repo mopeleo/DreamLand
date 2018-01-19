@@ -44,6 +44,8 @@ module.exports = {
         cellHeight:80,      //战斗场景单元格宽度
         floor:1,            //战斗场景楼层计数器
         sceneName:"home",   //战斗场景名称
+        enemyType:"0",      //敌方类型标识
+        playerType:"1",     //我方类型标识
         playerActorNum:0,   //玩家上场角色个数
         playerActors:["","","","","",""],    //玩家上场的角色ID列表，个数与最大保持一致
         getBattleRows:function(){

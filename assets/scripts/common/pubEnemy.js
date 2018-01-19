@@ -14,7 +14,7 @@ module.exports = {
                 def   : 10,      //物理防御力
                 matk  : 40,      //魔攻
                 mdef  : 40,      //魔防
-                spd   : 7,       //速度
+                spd   : 99,       //速度
                 talent: [        //天赋，每个角色独一无二
                             {id:"t1", name:"t1"}
                         ],
