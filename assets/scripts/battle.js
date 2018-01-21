@@ -26,14 +26,14 @@ cc.Class({
             type:cc.Button
         },
 
-        attacking:0,
-        playerOpt:false,        //玩家操作结束
+        // attacking:0,
+        unfinish:0,             //未结束行动的角色个数
+        playerOpt:false,        //玩家操作标志
         playerSelectEnemy:null, //玩家选中的敌方
-        cellList:[],
-        playerList:[],
-        enemyList:[],
-        actorList:[],
-        sceneParam:null
+        playerList:[],          //玩家角色对象
+        enemyList:[],           //敌方角色对象
+        actorList:[],           //所有角色对象，玩家+敌方
+        cellList:[]             //所有单元格对象，包括空格
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -52,7 +52,7 @@ cc.Class({
             },
             this
         );
-        this.sceneParam = CONSTANT.SCENES[CONSTANT.BATTLE_SCENE_PARAM.sceneName];
+        var sceneParam = CONSTANT.SCENES[CONSTANT.BATTLE_SCENE_PARAM.sceneName];
 
         //初始化战斗场景
         var cell_x = CONSTANT.BATTLE_SCENE_PARAM.getBattleCols();
@@ -67,7 +67,7 @@ cc.Class({
 
         //初始化敌方位置
         var count = 0;
-        var enemyNum = this.sceneParam.getEnemyNum();
+        var enemyNum = sceneParam.getEnemyNum();
         while(count < enemyNum){
             var randomRow = Math.floor((Math.random() * (cell_y - 2)));  //最下方两行为分隔行与玩家行
             var randomCol = Math.floor((Math.random() * cell_x));
@@ -79,13 +79,13 @@ cc.Class({
                 cell.setPosition(cc.p(px, py));
 
                 var spriteFrame = new cc.SpriteFrame();
-                var randomEnemyIndex = Math.floor((Math.random() * this.sceneParam.allowEnemy.length));
-                var enemyId = this.sceneParam.allowEnemy[randomEnemyIndex];
+                var randomEnemyIndex = Math.floor((Math.random() * sceneParam.allowEnemy.length));
+                var enemyId = sceneParam.allowEnemy[randomEnemyIndex];
                 var urlPath = CONSTANT.PIC_URL.enemydir + enemyId + ".jpg";
                 var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
                 spriteFrame.setTexture(texture);
                 cell.getComponent(cc.Sprite).spriteFrame = spriteFrame;
-                cell.on(cc.Node.EventType.TOUCH_END, this.attack, this);
+                cell.on(cc.Node.EventType.TOUCH_END, this.playerClick, this);
 
                 var enemyData = ENEMY[enemyId];
                 cell.getChildByName("spd").getComponent(cc.Label).string = enemyData.spd;
@@ -93,7 +93,7 @@ cc.Class({
                 cell.getChildByName("atk").getComponent(cc.Label).string = enemyData.atk;
                 cell._type = CONSTANT.BATTLE_SCENE_PARAM.enemyType;
                 cell._act = false;
-                cell.id = enemyId;
+                cell._id = enemyId;
 
                 this.battleSprite.node.addChild(cell);          //添加到场景
                 this.enemyList.push(cell);
@@ -107,7 +107,6 @@ cc.Class({
         for(var i = 0; i < CONSTANT.BATTLE_SCENE_PARAM.playerActors.length; i++){
             var playerActorId = CONSTANT.BATTLE_SCENE_PARAM.playerActors[i];
             if(playerActorId && playerActorId != ''){
-                // var actor = this.getCell(cell_y - 1, i);
                 var actor = cc.instantiate(this.prefabActor);
                 var px = this.getPositionX(i);
                 var py = this.getPositionY(cell_y - 1);
@@ -125,7 +124,7 @@ cc.Class({
                 actor.getChildByName("atk").getComponent(cc.Label).string = actorData.atk;
                 actor._type = CONSTANT.BATTLE_SCENE_PARAM.playerType;
                 actor._act = false;
-                actor.id = playerActorId;
+                actor._id = playerActorId;
 
                 this.battleSprite.node.addChild(actor);         //添加到场景
                 this.playerList.push(actor);
@@ -140,7 +139,29 @@ cc.Class({
     actionChain:function(){
         //按速度排序所有的角色
         this.actorList.sort(this.speedCompare);
-        var skipCnt = 0;
+        var skipCnt = 0;        //actor行动时前面跳过的已行动过的actor个数
+        var playerRound = 0;    //我方开始行动前有几个未动的
+        for(var i = 0; i < this.actorList.length; i++){
+            if(this.actorList[i]._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
+                if(this.actorList[i]._act == false){
+                    playerRound = i;
+                    break;
+                }
+            }
+        }
+        if(this.playerOpt){
+            for(var i = playerRound; i < this.actorList.length; i++){
+                if(this.actorList[i]._act == false){
+                    this.unfinish++;
+                }
+            }
+        }else{
+            for(var i = 0; i < playerRound; i++){
+                if(this.actorList[i]._act == false){
+                    this.unfinish++;
+                }
+            }
+        }
         for(var i = 0; i < this.actorList.length; i++){
             var actor = this.actorList[i];
             if(actor._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
@@ -192,12 +213,15 @@ cc.Class({
         var self = this;
         var actorData = this.getActorData(atk);
         var blood = actorData.atk;
-        var fight = cc.callFunc(function(obj, bld){
+        var subHp = cc.callFunc(function(obj, bld){
             hpNode.getComponent(cc.Label).string = bld;
         }, self, blood);
         var finished = cc.callFunc(function(){
             atk._act = true;
             hpNode.getComponent(cc.Label).string = "";
+            if(this.unfinish > 0){
+                this.unfinish--;
+            }
             //判断最后一个行动完毕后开始循环
             var existNotAct = false;
             for(var j = 0; j < this.actorList.length; j++){
@@ -217,21 +241,24 @@ cc.Class({
         var seq = cc.sequence(
             cc.delayTime(0.3*seq),
             cc.moveTo(0.3, def.x, def.y),
-            fight,
+            subHp,
             cc.moveTo(0.3, atk.x, atk.y),
             finished);
         atk.runAction(seq);
     },
 
-    attack:function(event){
-        if(!this.playerOpt){
+    playerClick:function(event){
+        if(this.unfinish > 0){
+            return;
+        }
+        // if(!this.playerOpt){
             this.playerSelectEnemy = event.target;
             this.playerOpt = true;
             this.actionChain();
-        }
+        // }
     },
 
-    // attack: function(event){
+    // playerClick: function(event){
     //     if(this.attacking > 0){
     //         return;
     //     }
@@ -283,14 +310,14 @@ cc.Class({
         var a = null;
         var b = null;
         if(objA._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
-            a = ACTORS[objA.id];
+            a = ACTORS[objA._id];
         }else if(objA._type == CONSTANT.BATTLE_SCENE_PARAM.enemyType){
-            a = ENEMY[objA.id];
+            a = ENEMY[objA._id];
         }
         if(objB._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
-            b = ACTORS[objB.id];
+            b = ACTORS[objB._id];
         }else if(objB._type == CONSTANT.BATTLE_SCENE_PARAM.enemyType){
-            b = ENEMY[objB.id];
+            b = ENEMY[objB._id];
         }
         if( a.spd > b.spd) {
             return -1;
@@ -304,9 +331,9 @@ cc.Class({
     getActorData:function(obj){
         var a = null
         if(obj._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
-            a = ACTORS[obj.id];
+            a = ACTORS[obj._id];
         }else if(obj._type == CONSTANT.BATTLE_SCENE_PARAM.enemyType){
-            a = ENEMY[obj.id];
+            a = ENEMY[obj._id];
         }
         return a;
     },
@@ -316,14 +343,14 @@ cc.Class({
         var a = null;
         var b = null;
         if(objA._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
-            a = ACTORS[objA.id];
+            a = ACTORS[objA._id];
         }else if(objA._type == CONSTANT.BATTLE_SCENE_PARAM.enemyType){
-            a = ENEMY[objA.id];
+            a = ENEMY[objA._id];
         }
         if(objB._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
-            b = ACTORS[objB.id];
+            b = ACTORS[objB._id];
         }else if(objB._type == CONSTANT.BATTLE_SCENE_PARAM.enemyType){
-            b = ENEMY[objB.id];
+            b = ENEMY[objB._id];
         }
         if( a.hp > b.hp) {
             return 1;
