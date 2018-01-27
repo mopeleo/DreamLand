@@ -1,5 +1,7 @@
 var CONSTANT = require("pubDefine");
 var websocket = require("netEngine");
+var BattleData = require("battleData");
+
 cc.Class({
     extends: cc.Component,
 
@@ -119,6 +121,16 @@ cc.Class({
     exitApp:function(){
         cc.director.end();
     },
+
+    saveGame:function(){
+        BattleData.save();
+    },
+
+    overGame:function(){
+        BattleData.clear();
+        cc.director.loadScene(CONSTANT.SCENES.home);
+    },
+
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {
 

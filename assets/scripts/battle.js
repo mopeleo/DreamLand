@@ -1,6 +1,7 @@
 var CONSTANT = require("pubDefine");
 var ACTORS = require("pubActors");
 var ENEMY = require("pubEnemy");
+var BattleData = require("battleData");
 
 cc.Class({
     extends: cc.Component,
@@ -41,9 +42,6 @@ cc.Class({
     // onLoad () {},
 
     start () {
-        // cc.director.getCollisionManager().enabled = true;  // 开启碰撞检测系统
-
-        this.floorLabel.string = "floor : " + CONSTANT.BATTLE_SCENE_PARAM.floor;
         this.nextButton.node.on(
             cc.Node.EventType.TOUCH_END,
             function(){
@@ -52,6 +50,8 @@ cc.Class({
             },
             this
         );
+
+        this.floorLabel.string = "floor : " + CONSTANT.BATTLE_SCENE_PARAM.floor;
         var sceneParam = CONSTANT.SCENES[CONSTANT.BATTLE_SCENE_PARAM.sceneName];
 
         //初始化战斗场景
