@@ -27,41 +27,42 @@ cc.Class({
             type:cc.Button
         },
 
-        // attacking:0,
-        unfinish:0,             //未结束行动的角色个数
-        playerOpt:false,        //玩家操作标志
-        playerSelectEnemy:null, //玩家选中的敌方
-        playerList:[],          //玩家角色对象
-        enemyList:[],           //敌方角色对象
-        actorList:[],           //所有角色对象，玩家+敌方
-        cellList:[]             //所有单元格对象，包括空格
+        unfinishNum: 0,          //未结束行动的角色个数
+        playerOpt: false,        //玩家操作标志
+        playerSelectEnemy: null, //玩家选中的敌方
     },
-
-    // LIFE-CYCLE CALLBACKS:
-
-    // onLoad () {},
 
     start () {
         this.nextButton.node.on(
             cc.Node.EventType.TOUCH_END,
             function(){
-                CONSTANT.BATTLE_SCENE_PARAM.floor++;
-                cc.director.loadScene(CONSTANT.BATTLE_SCENE_PARAM.sceneName);
+                BattleData.floor++;
+                BattleData.initBattleData();
+                cc.director.loadScene(BattleData.scene);
             },
             this
         );
 
-        this.floorLabel.string = "floor : " + CONSTANT.BATTLE_SCENE_PARAM.floor;
-        var sceneParam = CONSTANT.SCENES[CONSTANT.BATTLE_SCENE_PARAM.sceneName];
+        this.floorLabel.string = "floor : " + BattleData.floor;
+        if(BattleData.isArchive()){
+            this.loadBattle();
+        }else{
+            this.newBattle();
+        }
+        this.actionChain();
+    },
 
+    //开始一场新的
+    newBattle:function(){
+        var sceneParam = CONSTANT.SCENES[BattleData.scene];
         //初始化战斗场景
         var cell_x = CONSTANT.BATTLE_SCENE_PARAM.getBattleCols();
         var cell_y = CONSTANT.BATTLE_SCENE_PARAM.getBattleRows();
-        this.cellList = new Array(cell_x);
+        BattleData.cellList = new Array(cell_x);
         for(var i = 0; i < cell_x; i++){
-            this.cellList[i] = new Array(cell_y);
+            BattleData.cellList[i] = new Array(cell_y);
             for(var j = 0;j < cell_y; j++){
-                this.cellList[i][j]=null;
+                BattleData.cellList[i][j] = null;
             }
         }
 
@@ -71,9 +72,9 @@ cc.Class({
         while(count < enemyNum){
             var randomRow = Math.floor((Math.random() * (cell_y - 2)));  //最下方两行为分隔行与玩家行
             var randomCol = Math.floor((Math.random() * cell_x));
-            var cell = this.getCell(randomRow, randomCol);
-            if(!cell){
-                cell = cc.instantiate(this.prefabActor);
+            var cellData = this.getCell(randomRow, randomCol);
+            if(!cellData){
+                var cell = cc.instantiate(this.prefabActor);
                 var px = this.getPositionX(randomCol);
                 var py = this.getPositionY(randomRow);
                 cell.setPosition(cc.p(px, py));
@@ -91,21 +92,25 @@ cc.Class({
                 cell.getChildByName("spd").getComponent(cc.Label).string = enemyData.spd;
                 cell.getChildByName("hp").getComponent(cc.Label).string = enemyData.hp;
                 cell.getChildByName("atk").getComponent(cc.Label).string = enemyData.atk;
-                cell._type = CONSTANT.BATTLE_SCENE_PARAM.enemyType;
-                cell._act = false;
-                cell._id = enemyId;
+                cell.name = "CELL"+randomRow+""+randomCol;   //以坐标作为每个单元格的名字
+
+                cellData = {};
+                cellData._type = CONSTANT.BATTLE_SCENE_PARAM.enemyType;
+                cellData._act = false;
+                cellData._id = enemyId;
+                cellData._cellname = cell.name;
 
                 this.battleSprite.node.addChild(cell);          //添加到场景
-                this.enemyList.push(cell);
-                this.actorList.push(cell);
-                this.cellList[randomRow][randomCol] = cell;
+                BattleData.enemyList.push(cellData);
+                BattleData.actorList.push(cellData);
+                BattleData.cellList[randomRow][randomCol] = cellData;
                 count++;
             }
         }
 
         //初始化我方,row=5
-        for(var i = 0; i < CONSTANT.BATTLE_SCENE_PARAM.playerActors.length; i++){
-            var playerActorId = CONSTANT.BATTLE_SCENE_PARAM.playerActors[i];
+        for(var i = 0; i < BattleData.playerActors.length; i++){
+            var playerActorId = BattleData.playerActors[i];
             if(playerActorId && playerActorId != ''){
                 var actor = cc.instantiate(this.prefabActor);
                 var px = this.getPositionX(i);
@@ -122,48 +127,90 @@ cc.Class({
                 actor.getChildByName("spd").getComponent(cc.Label).string = actorData.spd;
                 actor.getChildByName("hp").getComponent(cc.Label).string = actorData.hp;
                 actor.getChildByName("atk").getComponent(cc.Label).string = actorData.atk;
-                actor._type = CONSTANT.BATTLE_SCENE_PARAM.playerType;
-                actor._act = false;
-                actor._id = playerActorId;
+                actor.name = "CELL5" + "" + i;   //以坐标作为每个单元格的名字
+
+                cellData = {};
+                cellData._type = CONSTANT.BATTLE_SCENE_PARAM.playerType;
+                cellData._act = false;
+                cellData._id = playerActorId;
+                cellData._cellname = actor.name;
 
                 this.battleSprite.node.addChild(actor);         //添加到场景
-                this.playerList.push(actor);
-                this.actorList.push(actor);
-                this.cellList[cell_y - 1][i] = actor;
+                BattleData.playerList.push(cellData);
+                BattleData.actorList.push(cellData);
+                BattleData.cellList[cell_y - 1][i] = cellData;
             }
         }
+    },
 
-        this.actionChain();
+    loadBattle:function(){
+        for(var i = 0; i < BattleData.cellList.length; i++){
+            var cols = BattleData.cellList[i];
+            for(var j = 0;j < cols.length; j++){
+                var cellData = BattleData.cellList[i][j];
+                if(cellData && cellData != null){
+                    var cell = cc.instantiate(this.prefabActor);
+                    var px = this.getPositionX(j);
+                    var py = this.getPositionY(i);
+                    cell.setPosition(cc.p(px, py));
+
+                    var spriteFrame = new cc.SpriteFrame();
+                    var actorData = null;
+                    if(cellData._type == CONSTANT.BATTLE_SCENE_PARAM.enemyType){
+                        var enemyId = cellData._id;
+                        var urlPath = CONSTANT.PIC_URL.enemydir + enemyId + ".jpg";
+                        var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
+                        spriteFrame.setTexture(texture);
+                        cell.on(cc.Node.EventType.TOUCH_END, this.playerClick, this);
+                        actorData = ENEMY[enemyId];
+                    }else{
+                        var playerActorId = cellData._id;
+                        var urlPath = CONSTANT.PIC_URL.playerdir + playerActorId + ".jpg";
+                        var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
+                        spriteFrame.setTexture(texture);
+                        actorData = ACTORS[playerActorId];
+                    }
+                    cell.getComponent(cc.Sprite).spriteFrame = spriteFrame;
+
+                    cell.getChildByName("spd").getComponent(cc.Label).string = actorData.spd;
+                    cell.getChildByName("hp").getComponent(cc.Label).string = actorData.hp;
+                    cell.getChildByName("atk").getComponent(cc.Label).string = actorData.atk;
+                    cell.name = cellData._cellname;
+
+                    this.battleSprite.node.addChild(cell);          //添加到场景
+                }
+            }
+        }
     },
 
     actionChain:function(){
         //按速度排序所有的角色
-        this.actorList.sort(this.speedCompare);
-        var skipCnt = 0;        //actor行动时前面跳过的已行动过的actor个数
-        var playerRound = 0;    //我方开始行动前有几个未动的
-        for(var i = 0; i < this.actorList.length; i++){
-            if(this.actorList[i]._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
-                if(this.actorList[i]._act == false){
+        BattleData.actorList.sort(this.speedCompare);
+        var skipCnt = 0;        //行动时前面跳过的已行动过的actor个数
+        var playerRound = 0;    //我方始行动回合
+        for(var i = 0; i < BattleData.actorList.length; i++){
+            if(BattleData.actorList[i]._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
+                if(BattleData.actorList[i]._act == false){
                     playerRound = i;
                     break;
                 }
             }
         }
         if(this.playerOpt){
-            for(var i = playerRound; i < this.actorList.length; i++){
-                if(this.actorList[i]._act == false){
-                    this.unfinish++;
+            for(var i = playerRound; i < BattleData.actorList.length; i++){
+                if(BattleData.actorList[i]._act == false){
+                    this.unfinishNum++;
                 }
             }
         }else{
             for(var i = 0; i < playerRound; i++){
-                if(this.actorList[i]._act == false){
-                    this.unfinish++;
+                if(BattleData.actorList[i]._act == false){
+                    this.unfinishNum++;
                 }
             }
         }
-        for(var i = 0; i < this.actorList.length; i++){
-            var actor = this.actorList[i];
+        for(var i = 0; i < BattleData.actorList.length; i++){
+            var actor = BattleData.actorList[i];
             if(actor._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
                 if(actor._act == true){
                     skipCnt++;
@@ -173,7 +220,7 @@ cc.Class({
                     if(this.playerOpt == true){
                         var leastHp = this.playerSelectEnemy;
                         if(leastHp == null){
-                            leastHp = this.getLeastHpActor(this.enemyList);
+                            leastHp = this.getLeastHpActor(BattleData.enemyList);
                         }
                         if(leastHp == null){
                             break;
@@ -189,7 +236,7 @@ cc.Class({
                     continue;
                 }
 
-                var leastHp = this.getLeastHpActor(this.playerList);
+                var leastHp = this.getLeastHpActor(BattleData.playerList);
                 if(leastHp == null){
                     break;
                 }
@@ -198,7 +245,9 @@ cc.Class({
         }
     },
 
-    fight:function(atk, def, seq){
+    fight:function(atkData, defData, seq){
+        var atk= this.getNodeByCellName(atkData._cellname);
+        var def= this.getNodeByCellName(defData._cellname);
         /* 动态新增LABEL */
         var hpNode = new cc.Node("hpText");
         hpNode.x = 0;
@@ -211,29 +260,29 @@ cc.Class({
         /* 动态新增LABEL END*/
 
         var self = this;
-        var actorData = this.getActorData(atk);
+        var actorData = this.getActorData(atkData);
         var blood = actorData.atk;
         var subHp = cc.callFunc(function(obj, bld){
             hpNode.getComponent(cc.Label).string = bld;
         }, self, blood);
         var finished = cc.callFunc(function(){
-            atk._act = true;
+            atkData._act = true;
             hpNode.getComponent(cc.Label).string = "";
-            if(this.unfinish > 0){
-                this.unfinish--;
+            if(this.unfinishNum > 0){
+                this.unfinishNum--;
             }
             //判断最后一个行动完毕后开始循环
             var existNotAct = false;
-            for(var j = 0; j < this.actorList.length; j++){
-                if(this.actorList[j]._act == false){
+            for(var j = 0; j < BattleData.actorList.length; j++){
+                if(BattleData.actorList[j]._act == false){
                     existNotAct = true;
                     break;
                 }
             }
             if(!existNotAct){
                 this.playerOpt = false;
-                for(var j = 0; j < this.actorList.length; j++){
-                    this.actorList[j]._act = false;
+                for(var j = 0; j < BattleData.actorList.length; j++){
+                    BattleData.actorList[j]._act = false;
                 }
                 this.actionChain(); //开始下一轮
             }
@@ -248,62 +297,15 @@ cc.Class({
     },
 
     playerClick:function(event){
-        if(this.unfinish > 0){
+        if(this.unfinishNum > 0){
             return;
         }
-        // if(!this.playerOpt){
-            this.playerSelectEnemy = event.target;
-            this.playerOpt = true;
-            this.actionChain();
-        // }
+        cc.log("event name : "  + event.target.name);
+        this.playerSelectEnemy = this.getDataByCellName(event.target.name);
+        // this.playerSelectEnemy = event.target;
+        this.playerOpt = true;
+        this.actionChain();
     },
-
-    // playerClick: function(event){
-    //     if(this.attacking > 0){
-    //         return;
-    //     }
-    //     if(this.playerList.length == 0){
-    //         return;
-    //     }
-    //     this.playerSelectEnemy = event.target;
-    //     var ex = event.target.x;
-    //     var ey = event.target.y;
-    //     /* 动态新增LABEL */
-    //     var hpNode = new cc.Node("hpText");
-    //     hpNode.x = ex;
-    //     hpNode.y = ey + 30;
-    //     hpNode.color = cc.Color.RED;
-    //     var label = hpNode.addComponent(cc.Label);
-    //     label.fontSize = 20;
-    //     label.string="";
-    //     this.node.addChild(hpNode);
-    //     /* 动态新增LABEL END*/
-
-    //     this.playerList.sort(this.speedCompare);
-    //     for(var i=0; i < this.playerList.length; i++){
-    //         this.attacking++;
-    //         var player = this.playerList[i];
-    //         var self = this;
-    //         var actorData = ACTORS[player.id];
-    //         var blood = actorData.atk;
-    //         var fight = cc.callFunc(function(obj, bld){
-    //             hpNode.getComponent(cc.Label).string = bld;
-    //         }, self, blood);
-    //         var finished = cc.callFunc(function(){
-    //             self.attacking--;
-    //             if(self.attacking == 0){
-    //                 hpNode.getComponent(cc.Label).string = "";
-    //             }
-    //         }, self);
-    //         var seq = cc.sequence(
-    //             cc.delayTime(0.3*i),
-    //             cc.moveTo(0.3, ex, ey),
-    //             fight,
-    //             cc.moveTo(0.3, player.x, player.y),
-    //             finished);
-    //         player.runAction(seq);
-    //     }
-    // },
 
     //按速度排序,spd大的排在前面
     speedCompare: function(objA, objB){
@@ -369,6 +371,19 @@ cc.Class({
         return aList[0];
     },
 
+    getNodeByCellName:function(cellname){
+        return this.battleSprite.node.getChildByName(cellname);
+    },
+
+    getDataByCellName:function(cellname){
+        for(var i=0; i< BattleData.actorList.length; i++){
+            var data = BattleData.actorList[i];
+            if(data._cellname == cellname){
+                return data;
+            }
+        }
+    },
+
     // update (dt) {},
 
     //col从左往右，row从上往下，从1开始，比如最左上角的格子坐标为row=0，col=0，最右下角的格子坐标为row=5，col=5
@@ -386,7 +401,7 @@ cc.Class({
         if(col < 0){
             col = 0;
         }
-        return this.cellList[row][col];
+        return BattleData.cellList[row][col];
     },
 
     getPositionX:function(colIndex){

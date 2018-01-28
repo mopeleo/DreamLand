@@ -6,16 +6,6 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        // foo: {
-        //    default: null,      // The default value will be used only when the component attaching
-        //                           to a node for the first time
-        //    url: cc.Texture2D,  // optional, default is typeof default
-        //    serializable: true, // optional, default is true
-        //    visible: true,      // optional, default is true
-        //    displayName: 'Foo', // optional
-        //    readonly: false,    // optional, default is false
-        // },
-        // ...
         sceneName:''
     },
 
@@ -63,30 +53,13 @@ cc.Class({
         websocket.send("userservice", param, function(res){
             if(res.success == true){
                 message.string = "欢迎 ： " + res.results[0].nickname;
-                cc.director.loadScene(CONSTANT.SCENES.home);
+                this.gohome();
             }else{
                 message.string = res.retmsg;
             }
 
         });
     },
-
-    // login:function(){
-    //     var userid = this.indexLogin.username.string;
-    //     var password = this.indexLogin.password.string;
-    //     var message = this.indexLogin.message;
-    //     var param = {action:"login", loginid : userid, loginpwd: password};
-    //     var socket = io.connect(CONSTANT.SERVER_HOST);
-    //     socket.emit(CONSTANT.SERVICES.userservice, param);
-    //     socket.on(CONSTANT.SERVICES.userservice, function(res){
-    //         if(res.success == true){
-    //             message.string = "欢迎 ： " + res.results[0].nickname;
-    //             cc.director.loadScene(CONSTANT.SCENES.home);
-    //         }else{
-    //             message.string = res.retmsg;
-    //         }
-    //     });
-    // },
 
     logout:function(){
         this.indexLogin.message.string = "您已退出";
@@ -101,21 +74,26 @@ cc.Class({
     },
 
     chooseActor:function(){
-        CONSTANT.BATTLE_SCENE_PARAM.init(this.sceneName);
+        if(BattleData.isArchive()){
+            Alert.show("请先结束游戏存档");
+            return;
+        }
+        BattleData.initActorChoose(this.sceneName);
         cc.director.loadScene(CONSTANT.SCENES.actorchoose);
     },
 
     goBattle:function(){
-        if(CONSTANT.BATTLE_SCENE_PARAM.playerActorNum == 0){
+        if(BattleData.playerActorNum == 0){
             Alert.show("请先选择上场角色");
             return;
         }
-        var nextscene = CONSTANT.SCENES[CONSTANT.BATTLE_SCENE_PARAM.sceneName];
-        if(nextscene.playerMinNum && CONSTANT.BATTLE_SCENE_PARAM.playerActorNum < nextscene.playerMinNum){
+        var nextscene = CONSTANT.SCENES[BattleData.scene];
+        if(nextscene.playerMinNum && BattleData.playerActorNum < nextscene.playerMinNum){
             Alert.show("上场角色不能少于" + nextscene.playerMinNum);
             return;
         }
-        cc.director.loadScene(CONSTANT.BATTLE_SCENE_PARAM.sceneName);
+        BattleData.initBattleData();
+        cc.director.loadScene(BattleData.scene);
     },
 
     exitApp:function(){
@@ -128,7 +106,7 @@ cc.Class({
 
     overGame:function(){
         BattleData.clear();
-        cc.director.loadScene(CONSTANT.SCENES.home);
+        this.gohome();
     },
 
     // called every frame, uncomment this function to activate update callback

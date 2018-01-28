@@ -28,7 +28,7 @@ cc.Class({
         for (var i = 0; i < ACTORS.actorId.length; i++) {
             var actor = cc.instantiate(this.prefabActor);
             this.node.addChild(actor);
-            var actorX = -280 + (CONSTANT.CHOOSE_SCENE_PARAM.selectorWidth*i);
+            var actorX = -200 + (CONSTANT.CHOOSE_SCENE_PARAM.selectorWidth*i);
             actor.setPosition(actorX, -CONSTANT.CHOOSE_SCENE_PARAM.selectorHeight/2);
             actor.id = ACTORS.actorId[i];
             actor.on(cc.Node.EventType.TOUCH_END, this.addSelectedActor, this);
@@ -45,19 +45,19 @@ cc.Class({
 
     initSelectedActorBackground:function(){
         var snum = CONSTANT.CHOOSE_SCENE_PARAM.selectorNum;
-        var nextscene = CONSTANT.SCENES[CONSTANT.BATTLE_SCENE_PARAM.sceneName];
+        var nextscene = CONSTANT.SCENES[BattleData.scene];
         if(nextscene){
             if(nextscene.playerMaxNum){
                 snum = nextscene.playerMaxNum;
             }
         }else{
-            Alter.show(CONSTANT.BATTLE_SCENE_PARAM.sceneName + "场景不存在");
+            Alter.show(BattleData.scene + "场景不存在");
         }
         for (var i = 0; i < snum; i++) {
             var actor = cc.instantiate(this.prefabActor);
             this.node.addChild(actor);
             actor.id = "selected_" + i;
-            var actorX = -320 + (100*i);
+            var actorX = -200 + (100*i);
             actor.setPosition(actorX, 140);
             var spriteFrame = new cc.SpriteFrame();
             var texture = cc.textureCache.addImage(cc.url.raw(CONSTANT.INIT_ACTOR_SPRITEFRAME.rawurl));
@@ -79,7 +79,7 @@ cc.Class({
                 if(child.getComponent(cc.Sprite).spriteFrame.frameid == CONSTANT.INIT_ACTOR_SPRITEFRAME.frameid){
                     child.getComponent(cc.Sprite).spriteFrame = event.target.getComponent(cc.Sprite).spriteFrame;
                     var index = Number(child.id.split("_")[1]);
-                    CONSTANT.BATTLE_SCENE_PARAM.addActor(index, event.target.id);
+                    BattleData.addActor(index, event.target.id);
                     child.on(cc.Node.EventType.TOUCH_END, this.removeSelectedActor, this);
                     break;
                 }else{
@@ -99,11 +99,11 @@ cc.Class({
         event.target.getComponent(cc.Sprite).spriteFrame = spriteFrame;
         event.target.getComponent(cc.Sprite).spriteFrame.frameid = CONSTANT.INIT_ACTOR_SPRITEFRAME.frameid;
         var index = Number(event.target.id.split("_")[1]);
-        CONSTANT.BATTLE_SCENE_PARAM.removeActor(index);
+        BattleData.removeActor(index);
     },
 
     clearSelectedActor:function(){
-        if(CONSTANT.BATTLE_SCENE_PARAM.playerActorNum == 0){
+        if(BattleData.playerActorNum == 0){
             return;
         }
         var preSelected = cc.find("Canvas/actorChoose");
@@ -122,7 +122,7 @@ cc.Class({
                 }
             }
         }
-        CONSTANT.BATTLE_SCENE_PARAM.clearActor();
+        BattleData.clearActor();
     }
 
 

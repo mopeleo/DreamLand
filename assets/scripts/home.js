@@ -13,12 +13,10 @@ cc.Class({
 
     start () {
         BattleData.load();
-        if(BattleData.dataType && BattleData.dataType == 1){
+        if(BattleData.isArchive()){
             this.goonButton.node.on(
                 cc.Node.EventType.TOUCH_END,
-                function(){
-                    cc.director.loadScene(BattleData.scene);
-                },
+                function(){cc.director.loadScene(BattleData.scene);},
                 this
             );
         }else{

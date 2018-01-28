@@ -84,7 +84,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 960,
+      "width": 480,
       "height": 640
     },
     "_rotationX": 0,
@@ -93,7 +93,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 480,
+      "x": 240,
       "y": 320
     },
     "_skewX": 0,
@@ -304,7 +304,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": -100,
+      "x": -160,
       "y": -280
     },
     "_skewX": 0,
@@ -524,8 +524,8 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": -186,
-      "y": 276
+      "x": -160,
+      "y": 280
     },
     "_skewX": 0,
     "_skewY": 0,
@@ -841,8 +841,8 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 180,
-      "y": 279
+      "x": 160,
+      "y": 280
     },
     "_skewX": 0,
     "_skewY": 0,
@@ -1084,8 +1084,8 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 151,
-      "y": -279
+      "x": 160,
+      "y": -280
     },
     "_skewX": 0,
     "_skewY": 0,
@@ -1323,11 +1323,7 @@
     },
     "unfinish": 0,
     "playerOpt": false,
-    "playerSelectEnemy": null,
-    "playerList": [],
-    "enemyList": [],
-    "actorList": [],
-    "cellList": []
+    "playerSelectEnemy": null
   },
   {
     "__type__": "cc.Canvas",
@@ -1339,7 +1335,7 @@
     "_enabled": true,
     "_designResolution": {
       "__type__": "cc.Size",
-      "width": 960,
+      "width": 480,
       "height": 640
     },
     "_fitWidth": true,
