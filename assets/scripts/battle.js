@@ -75,8 +75,8 @@ cc.Class({
             var cellData = this.getCell(randomRow, randomCol);
             if(!cellData){
                 var cell = cc.instantiate(this.prefabActor);
-                var px = this.getPositionX(randomCol);
-                var py = this.getPositionY(randomRow);
+                var px = CONSTANT.BATTLE_SCENE_PARAM.getPositionX(randomCol);
+                var py = CONSTANT.BATTLE_SCENE_PARAM.getPositionY(randomRow);
                 cell.setPosition(cc.p(px, py));
 
                 var spriteFrame = new cc.SpriteFrame();
@@ -113,8 +113,8 @@ cc.Class({
             var playerActorId = BattleData.playerActors[i];
             if(playerActorId && playerActorId != ''){
                 var actor = cc.instantiate(this.prefabActor);
-                var px = this.getPositionX(i);
-                var py = this.getPositionY(cell_y - 1);
+                var px = CONSTANT.BATTLE_SCENE_PARAM.getPositionX(i);
+                var py = CONSTANT.BATTLE_SCENE_PARAM.getPositionY(cell_y - 1);
                 actor.setPosition(cc.p(px, py));
 
                 var spriteFrame = new cc.SpriteFrame();
@@ -150,8 +150,8 @@ cc.Class({
                 var cellData = BattleData.cellList[i][j];
                 if(cellData && cellData != null){
                     var cell = cc.instantiate(this.prefabActor);
-                    var px = this.getPositionX(j);
-                    var py = this.getPositionY(i);
+                    var px = CONSTANT.BATTLE_SCENE_PARAM.getPositionX(j);
+                    var py = CONSTANT.BATTLE_SCENE_PARAM.getPositionY(i);
                     cell.setPosition(cc.p(px, py));
 
                     var spriteFrame = new cc.SpriteFrame();
@@ -402,16 +402,6 @@ cc.Class({
             col = 0;
         }
         return BattleData.cellList[row][col];
-    },
-
-    getPositionX:function(colIndex){
-        var cell_x = CONSTANT.BATTLE_SCENE_PARAM.getBattleCols();
-        return (colIndex - cell_x/2)*CONSTANT.BATTLE_SCENE_PARAM.cellWidth + CONSTANT.BATTLE_SCENE_PARAM.cellWidth/2;
-    },
-
-    getPositionY:function(rowIndex){
-        var cell_y = CONSTANT.BATTLE_SCENE_PARAM.getBattleRows();
-        return (cell_y/2 - rowIndex)*CONSTANT.BATTLE_SCENE_PARAM.cellHeight - CONSTANT.BATTLE_SCENE_PARAM.cellHeight/2;
     }
 
 });

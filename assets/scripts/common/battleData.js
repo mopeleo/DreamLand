@@ -70,6 +70,17 @@ module.exports = {
         this.playerActorNum++;
         this.playerActors[index] = val;
     },
+    existActor:function(actorid){
+        if(this.playerActorNum == 0){
+            return false;
+        }
+        for(var i = 0; i < this.playerActors.length; i++){
+            if(this.playerActors[i] == actorid){
+                return true;
+            }
+        }
+        return false;
+    },
     removeActor:function(index){
         if(index < 0 || index > this.playerActors.length){
             return;

@@ -16,6 +16,7 @@ netEngine.send = function (service, data, callBack) {
         ws.send(sendString);
     };
     ws.onmessage = function(msg) {
+        // cc.log("msg : " + msg.data);
         var res = JSON.parse(msg.data);
         if (res.retmsg) {
             if (callBack != null) {

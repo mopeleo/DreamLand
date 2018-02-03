@@ -5,10 +5,23 @@ module.exports = {
         data:1
     },
     SCENES:{
-        actorchoose: "actorChoose",
-        mining     : "mining",
-        home       : "home",
-        mission1   :{
+        //主页
+        home: {
+            name: "home"
+        },
+        //角色选择
+        actorchoose: {
+            name: "actorChoose",
+            selectorWidth : 80,
+            selectorHeight: 80,
+            selectorNum : 6
+        },
+        //探险
+        mining: {
+            name: "mining"
+        },
+        //战斗场景
+        mission1: {
             name: "mission1",
             playerMinNum: 2,     //战斗场景玩家最小个数
             playerMaxNum: 5,     //战斗场景玩家最大个数
@@ -22,19 +35,10 @@ module.exports = {
             }
         }
     },
-    INIT_ACTOR_SPRITEFRAME: {
-        frameid: "0000",                          //战场默认单元格spriteframe的ID
-        rawurl : "resources/player/0000.jpg"      //战场默认单元格spriteframe的背景
-    },
     PIC_URL:{
+        blankpic : "resources/player/0000.jpg",      //空白图片
         enemydir : "resources/enemy/",
         playerdir: "resources/player/"
-    },
-    //角色选择场景参数
-    CHOOSE_SCENE_PARAM:{
-        selectorWidth : 80,
-        selectorHeight: 80,
-        selectorNum : 6
     },
     //战斗场景参数
     BATTLE_SCENE_PARAM:{
@@ -49,6 +53,14 @@ module.exports = {
         },
         getBattleCols:function(){
             return this.bgWidth/this.cellWidth;     //获得战斗场景列数
+        },
+        getPositionX:function(colIndex){
+            var cell_x = this.getBattleCols();
+            return (colIndex - cell_x/2)*this.cellWidth + this.cellWidth/2;
+        },
+        getPositionY:function(rowIndex){
+            var cell_y = this.getBattleRows();
+            return (cell_y/2 - rowIndex)*this.cellHeight - this.cellHeight/2;
         }
     },
     data : null
