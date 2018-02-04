@@ -25,7 +25,7 @@ cc.Class({
             Alert.show("请先结束游戏存档");
             return;
         }
-        BattleData.initActorChoose(this.sceneName);
+        BattleData.initActorChoose(this.sceneName, CONSTANT.BATTLE_SCENE_PARAM.getBattleCols());
         cc.director.loadScene(CONSTANT.SCENES.actorchoose.name);
     },
 

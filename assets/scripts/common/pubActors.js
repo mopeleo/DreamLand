@@ -1,8 +1,16 @@
 //玩家角色的等级
 module.exports = {
     actorId : ["0001","0002","0003","0004","0005","0006","0007","0008","0009","0010","0011","0012"],
+    createPlayer:function(actorId){
+        var originData = this[actorId];
+        var actor = {};
+        for(var p in originData){
+            actor[p] = originData[p];
+        }
+        return actor;
+    },
     "0001":{
-                name  : "0001",
+                name  : "name1",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -37,7 +45,7 @@ module.exports = {
                         }
            },
     "0002":{
-                name  : "0002",
+                name  : "name2",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -72,7 +80,7 @@ module.exports = {
                         }
            },
     "0003":{
-                name  : "0003",
+                name  : "name3",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -107,7 +115,7 @@ module.exports = {
                         }
            },
     "0004":{
-                name  : "0004",
+                name  : "name4",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -142,7 +150,7 @@ module.exports = {
                         }
            },
     "0005":{
-                name  : "0005",
+                name  : "name5",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -177,7 +185,7 @@ module.exports = {
                         }
            },
     "0006":{
-                name  : "0006",
+                name  : "name6",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -212,7 +220,7 @@ module.exports = {
                         }
            },
     "0007":{
-                name  : "0007",
+                name  : "name7",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -247,7 +255,7 @@ module.exports = {
                         }
            },
     "0008":{
-                name  : "0008",
+                name  : "name8",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -282,7 +290,7 @@ module.exports = {
                         }
            },
     "0009":{
-                name  : "0009",
+                name  : "name9",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -317,7 +325,7 @@ module.exports = {
                         }
            },
     "0010":{
-                name  : "0010",
+                name  : "name10",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -352,7 +360,7 @@ module.exports = {
                         }
            },
     "0011":{
-                name  : "0011",
+                name  : "name11",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
@@ -387,7 +395,7 @@ module.exports = {
                         }
            },
     "0012":{
-                name  : "0012",
+                name  : "name12",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性

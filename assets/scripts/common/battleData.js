@@ -5,10 +5,7 @@ module.exports = {
     floor: 1,
     exp: 0,
     money: 0,
-    playerId: [],
     player: {},
-    enemyId: [],
-    enemy: {},
 
     playerActorNum:0,       //玩家上场角色个数
     playerActors:[],        //玩家上场的角色ID列表，个数与最大保持一致
@@ -49,19 +46,76 @@ module.exports = {
             this.enemyList = userdata.enemyList;
             this.actorList = userdata.actorList;
             this.cellList = userdata.cellList;
+
+            this.player = userdata.player;
         }
     },
     clear:function(){
         this.initBattleData();
         this.floor = 1;
         this.scene = "";
+
+        this.player = {};
         cc.sys.localStorage.removeItem("userdata");
     },
-    initActorChoose:function(scenename){
+    getDataByNodename:function(nodename){
+        for(var i=0; i< this.actorList.length; i++){
+            var data = this.actorList[i];
+            if(data._nodename == nodename){
+                return data;
+            }
+        }
+    },
+    getRandomLevel:function(){
+        var randomLevel = 1;
+        if(this.floor < 5){
+            randomLevel = Math.floor(Math.random() * this.floor);
+            if(randomLevel == 0){
+                randomLevel = 1;
+            }
+        }else{
+            randomLevel = Math.floor(this.floor - (Math.random() * 5));
+        }
+        return randomLevel;
+    },
+    enemyDie:function(enemy){
+        var index = -1;
+        for(var i = 0; i < this.enemyList.length; i++){
+            if(this.enemyList[i]._nodename == enemy._nodename){
+                index = i;
+                break;
+            }
+        }
+        if(index > -1){
+            this.enemyList.splice(index, 1);
+        }
+        index = -1;
+        for(var i = 0; i < this.actorList.length; i++){
+            if(this.actorList[i]._nodename == enemy._nodename){
+                index = i;
+                break;
+            }
+        }
+        if(index > -1){
+            this.actorList.splice(index, 1);
+        }
+        var pos = enemy._nodename.split("_");
+        var row = +pos[1];
+        var col = +pos[2];
+        this.cellList[row][col] = null;
+    },
+    // 角色选择相关
+    initActorChoose:function(scenename, colNum){
         this.floor = 1;
         this.scene = scenename;
         this.playerActorNum = 0;
-        this.playerActors = ["","","","","",""];
+        this.playerActors = new Array(colNum);
+        for(var i = 0; i < colNum; i++){
+            this.playerActors[i] = "";
+        }
+
+        this.player = {};
+        this.enemy = {};
     },
     addActor:function(index, val){
         if(index < 0 || index > this.playerActors.length){
@@ -90,7 +144,9 @@ module.exports = {
     },
     clearActor:function(){
         this.playerActorNum = 0;
-        this.playerActors = ["","","","","",""];
+        for(var i = 0; i < this.playerActors.length; i++){
+            this.playerActors[i] = "";
+        }
     }
 
 };

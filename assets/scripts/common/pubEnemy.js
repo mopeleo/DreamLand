@@ -1,13 +1,42 @@
 //玩家角色的等级
 module.exports = {
     enemyId : ["0001","0002","0003","0004","0005","0006","0007","0008","0009"],
+    createEnemy:function(enemyId, level){
+        var originData = this[enemyId];
+        var enemy = {};
+        enemy.name = originData.name;
+        enemy.level = level;
+        enemy.attr = originData.attr;
+        enemy.exp = (originData.exp * (1 + (level-1)*this.ratio.exp)).toFixed();
+        enemy.hp = (originData.hp * (1 + (level-1)*this.ratio.hp)).toFixed();
+        enemy.mp = (originData.mp * (1 + (level-1)*this.ratio.mp)).toFixed();
+        enemy.ep = originData.ep;
+        enemy.atk = (originData.atk * (1 + (level-1)*this.ratio.atk)).toFixed();
+        enemy.def = (originData.def * (1 + (level-1)*this.ratio.def)).toFixed();
+        enemy.matk = (originData.matk * (1 + (level-1)*this.ratio.matk)).toFixed();
+        enemy.mdef = (originData.matk * (1 + (level-1)*this.ratio.mdef)).toFixed();
+        enemy.spd = originData.spd;
+        enemy.talent = originData.talent;
+        enemy.skill = originData.skill;
+        enemy.magic = originData.magic;
+        return enemy;
+    },
+    ratio:{
+        exp:0.02,
+        hp:0.03,
+        mp:0.02,
+        atk:0.03,
+        def:0.02,
+        matk:0.03,
+        mdef:0.02
+    },
     "0001":{
-                name  : "0001",
+                name  : "name1",
                 rank  : 1,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 3100,    //血量
+                hp    : 310,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 51,      //物理攻击力
@@ -23,26 +52,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0002":{
-                name  : "0002",
+                name  : "name2",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 3020,    //血量
+                hp    : 320,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 60,      //物理攻击力
@@ -58,26 +76,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0003":{
-                name  : "0003",
+                name  : "name3",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 2000,    //血量
+                hp    : 330,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 70,      //物理攻击力
@@ -93,26 +100,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0004":{
-                name  : "0004",
+                name  : "name4",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 4000,    //血量
+                hp    : 340,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 35,      //物理攻击力
@@ -128,26 +124,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0005":{
-                name  : "0005",
+                name  : "name5",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 4000,    //血量
+                hp    : 350,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 35,      //物理攻击力
@@ -163,26 +148,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0006":{
-                name  : "0006",
+                name  : "name6",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 4200,    //血量
+                hp    : 360,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 53,      //物理攻击力
@@ -198,26 +172,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0007":{
-                name  : "0007",
+                name  : "name7",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 4200,    //血量
+                hp    : 370,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 53,      //物理攻击力
@@ -233,26 +196,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0008":{
-                name  : "0008",
+                name  : "name8",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 3800,    //血量
+                hp    : 380,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 62,      //物理攻击力
@@ -268,26 +220,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0009":{
-                name  : "0009",
+                name  : "name9",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 3500,    //血量
+                hp    : 390,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 56,      //物理攻击力
@@ -303,26 +244,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0010":{
-                name  : "0010",
+                name  : "name10",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 3500,    //血量
+                hp    : 400,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 80,      //物理攻击力
@@ -338,26 +268,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0011":{
-                name  : "0011",
+                name  : "name11",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 3500,    //血量
+                hp    : 410,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 80,      //物理攻击力
@@ -373,26 +292,15 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     "0012":{
-                name  : "0012",
+                name  : "name12",
                 rank  : 4,       //星级
                 level : 53,      //等级
                 attr  : 1,     //属性
                 exp   : 32000,   //经验值
-                hp    : 3500,    //血量
+                hp    : 420,    //血量
                 mp    : 300,     //魔法值
                 ep    : 0,       //技能值
                 atk   : 80,      //物理攻击力
@@ -408,18 +316,7 @@ module.exports = {
                         ],
                 magic : [        //魔法，每个角色自带（固定），也可在爬楼中临时学习（等级为学习时的最高技能等级，仅战斗有效）
                             {id:"mag1", name:"mag1", exp:2000, level:6, attr:1, consume:30}
-                        ],
-                equip : {
-                            head:"",        //头
-                            neck:"",        //颈
-                            body:"",        //身
-                            arm:"",         //臂
-                            hand:"",        //手
-                            finger:"",      //指
-                            sash:"",        //腰
-                            leg:"",         //腿
-                            foot:""         //脚
-                        }
+                        ]
            },
     data : null
 };
