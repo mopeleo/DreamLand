@@ -13,7 +13,10 @@ module.exports = {
                 def   : 10,      //+物理防御力
                 matk  : 40,      //+魔攻
                 mdef  : 40,      //+魔防
-                spd   : 7        //+速度
+                spd   : 7,       //+速度
+                drop  :[
+                    {scene:"",floor:"",rate:"",quantity:""}
+                ]
            },
     genEquip : function(){},
     data : null

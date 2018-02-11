@@ -1,16 +1,18 @@
 //保存战场数据
 module.exports = {
-    dataType: 0,             //0 初始化数据，1 存档数据
+    dataType: 0,            //0 初始化数据，1 存档数据
+    enemyType:0,            //敌方类型标识
+    partnerType:1,          //我方类型标识
     scene: "",
     floor: 1,
     exp: 0,
     money: 0,
-    player: {},
+    partner: {},            //我方角色战斗场景临时数据，存档都保存或读取此数据
 
-    playerActorNum:0,       //玩家上场角色个数
-    playerActors:[],        //玩家上场的角色ID列表，个数与最大保持一致
+    battlePartnerNum:0,       //玩家上场角色个数
+    battlePartnerIds:[],      //玩家上场的角色ID列表，个数与最大保持一致
 
-    playerList:[],          //玩家角色对象
+    partnerList:[],         //玩家角色对象
     enemyList:[],           //敌方角色对象
     actorList:[],           //所有角色对象，玩家+敌方
     cellList:[],            //所有单元格对象，包括空格
@@ -24,7 +26,7 @@ module.exports = {
     },
     initBattleData:function(){
         this.dataType = 0;
-        this.playerList = [];
+        this.partnerList = [];
         this.enemyList = [];
         this.actorList = [];
         this.cellList = [];
@@ -32,6 +34,7 @@ module.exports = {
     save:function(){
         this.dataType = 1;
         cc.sys.localStorage.setItem("userdata", JSON.stringify(this));
+        cc.log("======== save success =======");
     },
     load:function(){
         var datastring = cc.sys.localStorage.getItem("userdata");
@@ -40,14 +43,26 @@ module.exports = {
             this.dataType = userdata.dataType;
             this.scene = userdata.scene;
             this.floor = userdata.floor;
-            this.playerActorNum = userdata.playerActorNum;
-            this.playerActors = userdata.playerActors;
-            this.playerList = userdata.playerList;
-            this.enemyList = userdata.enemyList;
+            this.battlePartnerNum = userdata.battlePartnerNum;
+            this.battlePartnerIds = userdata.battlePartnerIds;
             this.actorList = userdata.actorList;
             this.cellList = userdata.cellList;
-
-            this.player = userdata.player;
+            //重新建立引用关系
+            this.partnerList = [];
+            this.enemyList = [];
+            for(var i = 0; i < this.actorList.length; i++){
+                var d = this.actorList[i];
+                if(d._type == this.partnerType){
+                    this.partnerList.push(d);
+                    this.partner[d._id] = d._celldata;
+                }else{
+                    this.enemyList.push(d);
+                }
+                var pos = d._nodename.split("_");
+                var row = +pos[1];
+                var col = +pos[2];
+                this.cellList[row][col] = d;
+            }
         }
     },
     clear:function(){
@@ -55,7 +70,7 @@ module.exports = {
         this.floor = 1;
         this.scene = "";
 
-        this.player = {};
+        this.partner = {};
         cc.sys.localStorage.removeItem("userdata");
     },
     getDataByNodename:function(nodename){
@@ -105,47 +120,47 @@ module.exports = {
         this.cellList[row][col] = null;
     },
     // 角色选择相关
-    initActorChoose:function(scenename, colNum){
+    initPartnerSelect:function(scenename, colNum){
         this.floor = 1;
         this.scene = scenename;
-        this.playerActorNum = 0;
-        this.playerActors = new Array(colNum);
+        this.battlePartnerNum = 0;
+        this.battlePartnerIds = new Array(colNum);
         for(var i = 0; i < colNum; i++){
-            this.playerActors[i] = "";
+            this.battlePartnerIds[i] = "";
         }
 
-        this.player = {};
+        this.partner = {};
         this.enemy = {};
     },
-    addActor:function(index, val){
-        if(index < 0 || index > this.playerActors.length){
+    addPartner:function(index, val){
+        if(index < 0 || index > this.battlePartnerIds.length){
             return;
         }
-        this.playerActorNum++;
-        this.playerActors[index] = val;
+        this.battlePartnerNum++;
+        this.battlePartnerIds[index] = val;
     },
-    existActor:function(actorid){
-        if(this.playerActorNum == 0){
+    existPartner:function(actorid){
+        if(this.battlePartnerNum == 0){
             return false;
         }
-        for(var i = 0; i < this.playerActors.length; i++){
-            if(this.playerActors[i] == actorid){
+        for(var i = 0; i < this.battlePartnerIds.length; i++){
+            if(this.battlePartnerIds[i] == actorid){
                 return true;
             }
         }
         return false;
     },
-    removeActor:function(index){
-        if(index < 0 || index > this.playerActors.length){
+    removePartner:function(index){
+        if(index < 0 || index > this.battlePartnerIds.length){
             return;
         }
-        this.playerActorNum--;
-        this.playerActors[index] = "";
+        this.battlePartnerNum--;
+        this.battlePartnerIds[index] = "";
     },
-    clearActor:function(){
-        this.playerActorNum = 0;
-        for(var i = 0; i < this.playerActors.length; i++){
-            this.playerActors[i] = "";
+    clearPartner:function(){
+        this.battlePartnerNum = 0;
+        for(var i = 0; i < this.battlePartnerIds.length; i++){
+            this.battlePartnerIds[i] = "";
         }
     }
 

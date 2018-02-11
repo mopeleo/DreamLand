@@ -1,6 +1,7 @@
 var CONSTANT = require("pubDefine");
-var ACTORS = require("pubActors");
-var ENEMY = require("pubEnemy");
+var Scene = require("pubScene");
+var Partner = require("pubPartner");
+var Enemy = require("pubEnemy");
 var BattleData = require("battleData");
 
 cc.Class({
@@ -55,7 +56,7 @@ cc.Class({
 
     //开始一场新的
     newBattle:function(){
-        var sceneParam = CONSTANT.SCENES[BattleData.scene];
+        var sceneParam = Scene[BattleData.scene];
         //初始化战斗场景
         var cell_x = CONSTANT.BATTLE_SCENE_PARAM.getBattleCols();
         var cell_y = CONSTANT.BATTLE_SCENE_PARAM.getBattleRows();
@@ -70,7 +71,7 @@ cc.Class({
 
         //初始化敌方位置
         var count = 0;
-        var enemyNum = sceneParam.getEnemyNum();
+        var enemyNum = Scene.getEnemyNum(BattleData.scene);
         while(count < enemyNum){
             var randomRow = Math.floor((Math.random() * (cell_y - 2)));  //最下方两行为分隔行与玩家行
             var randomCol = Math.floor((Math.random() * cell_x));
@@ -84,21 +85,21 @@ cc.Class({
                 var spriteFrame = new cc.SpriteFrame();
                 var randomEnemyIndex = Math.floor((Math.random() * sceneParam.allowEnemy.length));
                 var enemyId = sceneParam.allowEnemy[randomEnemyIndex];
-                var urlPath = CONSTANT.PIC_URL.enemydir + enemyId + ".jpg";
+                var urlPath = CONSTANT.PIC_URL.enemyDir + enemyId + ".jpg";
                 var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
                 spriteFrame.setTexture(texture);
                 cell.getComponent(cc.Sprite).spriteFrame = spriteFrame;
                 cell.on(cc.Node.EventType.TOUCH_END, this.playerClick, this);
 
                 var randomLevel = BattleData.getRandomLevel();
-                var enemyData = ENEMY.createEnemy(enemyId, randomLevel);
+                var enemyData = Enemy.createEnemy(enemyId, randomLevel);
                 cell.getChildByName("spd").getComponent(cc.Label).string = enemyData.spd;
                 cell.getChildByName("hp").getComponent(cc.Label).string = enemyData.hp;
                 cell.getChildByName("atk").getComponent(cc.Label).string = enemyData.atk;
                 cell._name = "CELL_" + randomRow + "_" + randomCol;   //以坐标作为每个单元格的名字
 
                 cellData = {};
-                cellData._type = CONSTANT.BATTLE_SCENE_PARAM.enemyType;
+                cellData._type = BattleData.enemyType;
                 cellData._act = false;
                 cellData._id = enemyId;
                 cellData._nodename = cell._name;
@@ -113,9 +114,9 @@ cc.Class({
         }
 
         //初始化我方,row=5
-        for(var i = 0; i < BattleData.playerActors.length; i++){
-            var playerActorId = BattleData.playerActors[i];
-            if(playerActorId && playerActorId != ''){
+        for(var i = 0; i < BattleData.battlePartnerIds.length; i++){
+            var partnerId = BattleData.battlePartnerIds[i];
+            if(partnerId && partnerId != ''){
                 var actor = cc.instantiate(this.prefabActor);
                 var cellRow = cell_y - 1;
                 var px = CONSTANT.BATTLE_SCENE_PARAM.getPositionX(i);
@@ -123,17 +124,17 @@ cc.Class({
                 actor.setPosition(cc.p(px, py));
 
                 var spriteFrame = new cc.SpriteFrame();
-                var urlPath = CONSTANT.PIC_URL.playerdir + playerActorId + ".jpg";
+                var urlPath = CONSTANT.PIC_URL.partnerDir + partnerId + ".jpg";
                 var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
                 spriteFrame.setTexture(texture);
                 actor.getComponent(cc.Sprite).spriteFrame = spriteFrame;
 
                 var actorData = null;
-                if(BattleData.player[playerActorId]){
-                    actorData = BattleData.player[playerActorId];
+                if(BattleData.partner[partnerId]){
+                    actorData = BattleData.partner[partnerId];
                 }else{
-                    actorData = ACTORS.createPlayer(playerActorId);
-                    BattleData.player[playerActorId] = actorData;
+                    actorData = Partner.createPartner(partnerId);
+                    BattleData.partner[partnerId] = actorData;
                 }
                 actor.getChildByName("spd").getComponent(cc.Label).string = actorData.spd;
                 actor.getChildByName("hp").getComponent(cc.Label).string = actorData.hp;
@@ -141,14 +142,14 @@ cc.Class({
                 actor._name = "CELL_" + cellRow + "_" + i;   //以坐标作为每个单元格的名字
 
                 cellData = {};
-                cellData._type = CONSTANT.BATTLE_SCENE_PARAM.playerType;
+                cellData._type = BattleData.partnerType;
                 cellData._act = false;
-                cellData._id = playerActorId;
+                cellData._id = partnerId;
                 cellData._nodename = actor._name;
                 cellData._celldata = actorData;
 
                 this.battleSprite.node.addChild(actor);         //添加到场景
-                BattleData.playerList.push(cellData);
+                BattleData.partnerList.push(cellData);
                 BattleData.actorList.push(cellData);
                 BattleData.cellList[cellRow][i] = cellData;
             }
@@ -167,15 +168,15 @@ cc.Class({
                     cell.setPosition(cc.p(px, py));
 
                     var spriteFrame = new cc.SpriteFrame();
-                    if(cellData._type == CONSTANT.BATTLE_SCENE_PARAM.enemyType){
+                    if(cellData._type == BattleData.enemyType){
                         var enemyId = cellData._id;
-                        var urlPath = CONSTANT.PIC_URL.enemydir + enemyId + ".jpg";
+                        var urlPath = CONSTANT.PIC_URL.enemyDir + enemyId + ".jpg";
                         var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
                         spriteFrame.setTexture(texture);
                         cell.on(cc.Node.EventType.TOUCH_END, this.playerClick, this);
                     }else{
-                        var playerActorId = cellData._id;
-                        var urlPath = CONSTANT.PIC_URL.playerdir + playerActorId + ".jpg";
+                        var partnerId = cellData._id;
+                        var urlPath = CONSTANT.PIC_URL.partnerDir + partnerId + ".jpg";
                         var texture = cc.textureCache.addImage(cc.url.raw(urlPath));
                         spriteFrame.setTexture(texture);
                     }
@@ -198,7 +199,7 @@ cc.Class({
         var skipCnt = 0;        //行动时前面跳过的已行动过的actor个数
         var playerRound = 0;    //我方始行动回合
         for(var i = 0; i < BattleData.actorList.length; i++){
-            if(BattleData.actorList[i]._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
+            if(BattleData.actorList[i]._type == BattleData.partnerType){
                 if(BattleData.actorList[i]._act == false){
                     playerRound = i;
                     break;
@@ -221,7 +222,7 @@ cc.Class({
         var damageCount = 0;   //累计伤害
         for(var i = 0; i < BattleData.actorList.length; i++){
             var actor = BattleData.actorList[i];
-            if(actor._type == CONSTANT.BATTLE_SCENE_PARAM.playerType){
+            if(actor._type == BattleData.partnerType){
                 if(actor._act == true){
                     skipCnt++;
                     continue;
@@ -251,13 +252,13 @@ cc.Class({
                         break;
                     }
                 }
-            }else if(actor._type == CONSTANT.BATTLE_SCENE_PARAM.enemyType){
+            }else if(actor._type == BattleData.enemyType){
                 if(actor._act == true){
                     skipCnt++;
                     continue;
                 }
 
-                var leastHp = this.getLeastHpActor(BattleData.playerList);
+                var leastHp = this.getLeastHpActor(BattleData.partnerList);
                 if(leastHp == null){
                     break;
                 }

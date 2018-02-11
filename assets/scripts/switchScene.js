@@ -1,4 +1,4 @@
-var CONSTANT = require("pubDefine");
+var Scene = require("pubScene");
 var BattleData = require("battleData");
 
 cc.Class({
@@ -13,11 +13,11 @@ cc.Class({
     },
 
     gohome:function(){
-        cc.director.loadScene(CONSTANT.SCENES.home.name);
+        Scene.goHome();
     },
 
     gomining:function(){
-        cc.director.loadScene(CONSTANT.SCENES.mining.name);
+        Scene.goMining();
     },
 
     chooseActor:function(){
@@ -25,17 +25,17 @@ cc.Class({
             Alert.show("请先结束游戏存档");
             return;
         }
-        BattleData.initActorChoose(this.sceneName, CONSTANT.BATTLE_SCENE_PARAM.getBattleCols());
-        cc.director.loadScene(CONSTANT.SCENES.actorchoose.name);
+        BattleData.initPartnerSelect(this.sceneName, Scene.actorselect.selectorNum);
+        Scene.goActorSelect();
     },
 
     goBattle:function(){
-        if(BattleData.playerActorNum == 0){
+        if(BattleData.battlePartnerNum == 0){
             Alert.show("请先选择上场角色");
             return;
         }
-        var nextscene = CONSTANT.SCENES[BattleData.scene];
-        if(nextscene.playerMinNum && BattleData.playerActorNum < nextscene.playerMinNum){
+        var nextscene = Scene[BattleData.scene];
+        if(nextscene.playerMinNum && BattleData.battlePartnerNum < nextscene.playerMinNum){
             Alert.show("上场角色不能少于" + nextscene.playerMinNum);
             return;
         }
@@ -53,7 +53,7 @@ cc.Class({
 
     overGame:function(){
         BattleData.clear();
-        this.gohome();
+        Scene.goHome();
     },
 
     // called every frame, uncomment this function to activate update callback

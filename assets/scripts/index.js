@@ -1,5 +1,6 @@
 var websocket = require("netEngine");
-var CONSTANT = require("pubDefine");
+var Scene = require("pubScene");
+
 cc.Class({
     extends: cc.Component,
 
@@ -49,7 +50,7 @@ cc.Class({
             if(res.success == true){
                 self.txtMessage.string = "欢迎 ： " + res.results[0].nickname;
                 cc.sys.localStorage.setItem("userid", userid);
-                cc.director.loadScene(CONSTANT.SCENES.home.name);
+                Scene.goHome();
             }else{
                 self.txtMessage.string = res.retmsg;
             }

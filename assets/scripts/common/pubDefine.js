@@ -4,41 +4,12 @@ module.exports = {
         userservice: "userservice",    //用户服务名
         data:1
     },
-    SCENES:{
-        //主页
-        home: {
-            name: "home"
-        },
-        //角色选择
-        actorchoose: {
-            name: "actorChoose",
-            selectorWidth : 80,
-            selectorHeight: 80,
-            selectorNum : 6
-        },
-        //探险
-        mining: {
-            name: "mining"
-        },
-        //战斗场景
-        mission1: {
-            name: "mission1",
-            playerMinNum: 2,     //战斗场景玩家最小个数
-            playerMaxNum: 5,     //战斗场景玩家最大个数
-            enemyMinNum:8,      //战斗场景敌人最小个数
-            enemyMaxNum:10,     //战斗场景敌人最大个数
-            allowEnemy:["0001", "0002", "0003", "0004"],         //允许出现的敌方ID
-            getEnemyNum:function(){
-                var num = Math.floor((Math.random() * (this.enemyMaxNum - this.enemyMinNum)));
-                num = num + this.enemyMinNum;
-                return num;
-            }
-        }
-    },
     PIC_URL:{
-        blankpic : "resources/player/0000.jpg",      //空白图片
-        enemydir : "resources/enemy/",
-        playerdir: "resources/player/"
+        enemyDir  : "resources/enemy/",
+        partnerDir: "resources/player/",
+        itemDir   : "resources/item/",
+        equipDir  : "resources/equip/",
+        blankPic  : "resources/player/0000.jpg"      //空白图片
     },
     //战斗场景参数
     BATTLE_SCENE_PARAM:{
@@ -46,8 +17,6 @@ module.exports = {
         bgHeight:480,       //战斗场景背景图片高度
         cellWidth:80,       //战斗场景单元格高度
         cellHeight:80,      //战斗场景单元格宽度
-        enemyType:"0",      //敌方类型标识
-        playerType:"1",     //我方类型标识
         getBattleRows:function(){
             return this.bgHeight/this.cellHeight;   //获得战斗场景行数
         },

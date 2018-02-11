@@ -1,3 +1,5 @@
+var Scene = require("pubScene");
+
 cc.Class({
     extends: cc.Component,
 
@@ -13,7 +15,7 @@ cc.Class({
         var loading = function(){
             this.indexLoadingBar.progress += 0.1;
             if(this.indexLoadingBar.progress > 0.9){
-                cc.director.loadScene("indexLogin");
+                Scene.goIndex();
             }
         }
         this.schedule(loading, 0.8);

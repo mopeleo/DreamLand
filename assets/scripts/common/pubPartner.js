@@ -1,7 +1,7 @@
 //玩家角色的等级
 module.exports = {
-    actorId : ["0001","0002","0003","0004","0005","0006","0007","0008","0009","0010","0011","0012"],
-    createPlayer:function(actorId){
+    partnerId : ["0001","0002","0003","0004","0005","0006","0007","0008","0009","0010","0011","0012"],
+    createPartner:function(actorId){
         var originData = this[actorId];
         var actor = {};
         for(var p in originData){
